@@ -224,6 +224,8 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
           <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input type="text" id="f-web" tabindex="-1" autocomplete="off"></div>
           <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich möchte in Zukunft von NEOS über weitere Themen informiert werden. Abmelden geht jederzeit.</span></label>
           <label class="check" for="f-pub"><input type="checkbox" id="f-pub"> <span id="t-pub">NEOS darf meine Fusion mit Vorname und Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“.</span></label>
+          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich mache beim Gewinnspiel mit (dafür brauchen wir deine E-Mail-Adresse).</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
+          <label class="check" for="f-ok"><input type="checkbox" id="f-ok"> <span id="t-ok">Ich bin einverstanden, dass NEOS Vorarlberg meine Einsendung samt Nachricht speichert und auswertet. *</span></label>
           <p class="note">Wir verwenden deine Angaben nur, um deine Einsendung zu bearbeiten, und – wenn du es angekreuzt hast – um dich über weitere Themen zu informieren. * Pflichtfeld. Für deine Nachricht und selbst gewählte Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
           <div class="row"><button class="btn big" id="sendbtn" type="submit">An NEOS schicken</button><span id="sendmsg" class="sendmsg" role="status"></span></div>
         </form>
@@ -394,10 +396,11 @@ const PUNCH = ['Das Dorf bleibt. Die Bürokratie geht.','Fusion statt Konfusion.
 
 /* ---------- Einstellungen fürs Web-Team ---------- */
 const CONFIG = {
-  mailto: 'vorarlberg@neos.eu',   // Einsendungen öffnen das Mail-Programm, fertig adressiert an diese Adresse
-  submitUrl: '',   // Endpunkt, der die Einsendung als JSON per POST annimmt. Leer = Testmodus (zeigt nur an, was gesendet würde).
+  mailto: '',   // leer = Einsendungen gehen direkt an submitUrl
+  raffleUrl: '', // Link zu den Teilnahmebedingungen des Gewinnspiels
+  submitUrl: 'https://fusionierer.vorarlberg.workers.dev/',   // Adresse des Cloudflare Workers, z. B. https://fusionierer.neosvorarlberg.workers.dev   // Endpunkt, der die Einsendung als JSON per POST annimmt. Leer = Testmodus (zeigt nur an, was gesendet würde).
   privacyUrl: '',  // Link zur Datenschutzerklärung von NEOS Vorarlberg. Muss vor dem Livegang gesetzt werden.
-  includeImage: false, // Kartenbild (PNG, Base64) mitschicken
+  includeImage: true, // Kartenbild (PNG, Base64) mitschicken
   shareUrl: 'https://neosvorarlberg.github.io/fusionierer/'     // Öffentliche Adresse des Fusionierers auf der Homepage, z. B. https://vorarlberg.neos.eu/fusionierer. Leer = aktuelle Seitenadresse.
 };
 
@@ -633,6 +636,8 @@ $('sendform').addEventListener('submit', async e=>{
   const msg=$('f-msg').value.trim(), mail=$('f-mail').value.trim(), news=$('f-news').checked;
   if (!list.length){ out.textContent='Bitte zuerst eine Fusion bauen.'; out.classList.add('err'); return; }
   if (msg.length<3){ out.textContent='Schreib uns bitte kurz, warum du das so machen würdest.'; out.classList.add('err'); $('f-msg').focus(); return; }
+  if ($('f-win').checked && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Fürs Gewinnspiel brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
+  if (!$('f-ok').checked){ out.textContent='Bitte bestätige, dass wir deine Einsendung speichern dürfen.'; out.classList.add('err'); $('f-ok').focus(); return; }
   if (news && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Für Infos von NEOS brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
   if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Die E-Mail-Adresse sieht nicht richtig aus.'; out.classList.add('err'); $('f-mail').focus(); return; }
   const title = which==='karte' ? 'Mein neues Vorarlberg' : fname(list[0]);
@@ -642,6 +647,7 @@ $('sendform').addEventListener('submit', async e=>{
     fusionen: list.map(fusionData),
     nachricht: msg, vorname: $('f-name').value.trim(), wohnort: $('f-ort').value.trim(),
     email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-pub').checked,
+    gewinnspiel: $('f-win').checked, link: shareLink(list), einwilligung_text: $('t-ok').textContent,
     newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-pub').textContent,
     quelle: location.href.split('#')[0], website: $('f-web').value,
     bild_png: CONFIG.includeImage ? makeImage(list, title) : null
@@ -679,6 +685,7 @@ $('sendform').addEventListener('submit', async e=>{
   if (payload.bild_png){ const im=document.createElement('img'); im.src=payload.bild_png; im.alt='Kartenbild der Einsendung'; pv.appendChild(im); }
   const pre=document.createElement('pre'); const shown={...payload, bild_png: payload.bild_png ? `[PNG, ${Math.round(payload.bild_png.length/1024)} KB]` : null}; pre.textContent=JSON.stringify(shown,null,2); pv.appendChild(pre);
 });
+if (CONFIG.raffleUrl){ const a=$('raffle'); a.href=CONFIG.raffleUrl; a.hidden=false; }
 if (CONFIG.privacyUrl){ const a=$('privacy'); a.href=CONFIG.privacyUrl; a.hidden=false; }
 
 
