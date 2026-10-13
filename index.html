@@ -398,7 +398,7 @@ const CONFIG = {
   submitUrl: '',   // Endpunkt, der die Einsendung als JSON per POST annimmt. Leer = Testmodus (zeigt nur an, was gesendet würde).
   privacyUrl: '',  // Link zur Datenschutzerklärung von NEOS Vorarlberg. Muss vor dem Livegang gesetzt werden.
   includeImage: false, // Kartenbild (PNG, Base64) mitschicken
-  shareUrl: ''     // Öffentliche Adresse des Fusionierers auf der Homepage, z. B. https://vorarlberg.neos.eu/fusionierer. Leer = aktuelle Seitenadresse.
+  shareUrl: 'https://neosvorarlberg.github.io/fusionierer/'     // Öffentliche Adresse des Fusionierers auf der Homepage, z. B. https://vorarlberg.neos.eu/fusionierer. Leer = aktuelle Seitenadresse.
 };
 
 /* ---------- State ---------- */
@@ -520,6 +520,7 @@ function renderResult(fresh){
   const url=shareLink(fusions), text=shareText(f), enc=encodeURIComponent;
   const mk=(label,href)=>{ const a=document.createElement('a'); a.className='btn'; a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener'; return a; };
   if (navigator.share){ const bn=document.createElement('button'); bn.className='btn big small'; bn.textContent='Teilen'; bn.onclick=async()=>{ if(!(await shareNative(f))) toast.textContent='Teilen ging nicht – nimm „Link kopieren“.'; }; sr.appendChild(bn); }
+  const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
   sr.appendChild(mk('WhatsApp', `https://wa.me/?text=${enc(text+' '+url)}`));
   sr.appendChild(mk('Facebook', `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`));
   sr.appendChild(mk('Telegram', `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`));
@@ -601,23 +602,26 @@ function renderSend(){
 function fusionData(f){ const s=stats(f.m); return { name: fname(f), namensvorschlag_eigen: !!f.custom, gemeinden: f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de')), einwohner: s.p, flaeche_km2: Math.round(s.a*10)/10, mandate_vorher: s.m, mandate_nachher: s.newM }; }
 const IMGCOL = {map:'#E6DFEA', edge:'#FFFFFF', ink:'#1D1722', muted:'#6B6274', pink:'#E6007E', bg:'#F6F3F7', g:{'--g1':'#E6007E','--g2':'#0E9F8E','--g3':'#E08A00','--g4':'#6C4BD8','--g5':'#1F7AE0','--g6':'#C2410C'}};
 function makeImage(list, title){
-  const S=1.2, top=96, W=620, H=965;
-  const cv=document.createElement('canvas'); cv.width=W*S; cv.height=(H+top+30)*S;
+  const S=1.2, top=142, W=620, H=965;
+  const cv=document.createElement('canvas'); cv.width=W*S; cv.height=(H+top+48)*S;
   const c=cv.getContext('2d'); c.scale(S,S);
-  c.fillStyle=IMGCOL.bg; c.fillRect(0,0,W,H+top+30);
-  c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('NEOS VORARLBERG · FUSION STATT ILLUSION', 22, 30);
-  c.fillStyle=IMGCOL.ink; c.font='800 30px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText(title, 22, 64);
+  c.fillStyle=IMGCOL.bg; c.fillRect(0,0,W,H+top+48);
+  c.fillStyle=IMGCOL.pink; c.fillRect(0,0,W,52);
+  c.fillStyle='#FFFFFF'; c.font='800 24px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText('NEOS Vorarlberg', 22, 35);
+  c.textAlign='right'; c.font='600 15px Söhne, Figtree, sans-serif'; c.fillText('Der Gemeindefusionierer', W-22, 33); c.textAlign='left';
+  c.fillStyle=IMGCOL.ink; c.font='800 30px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText(title, 22, 100);
   const cnt = N - list.reduce((s,f)=>s+f.m.length-1,0);
-  c.fillStyle=IMGCOL.muted; c.font='500 15px Söhne, Figtree, sans-serif'; c.fillText(`${cnt} statt 96 Gemeinden`, 22, 86);
+  c.fillStyle=IMGCOL.muted; c.font='500 15px Söhne, Figtree, sans-serif'; c.fillText(`${cnt} statt 96 Gemeinden · Fusion statt Illusion`, 22, 124);
   c.save(); c.translate(0, top);
   G.forEach(g=>{ const p=new Path2D(g.d); c.fillStyle=IMGCOL.map; c.fill(p); c.strokeStyle=IMGCOL.edge; c.lineWidth=.8; c.stroke(p); });
   list.forEach(f=>{ const col=IMGCOL.g[f.c]; c.lineJoin='round';
     f.m.forEach(i=>{ const p=new Path2D(G[i].d); c.fillStyle=col; c.fill(p); c.strokeStyle=IMGCOL.ink; c.lineWidth=2.4; c.stroke(p); });
     f.m.forEach(i=>{ const p=new Path2D(G[i].d); c.fillStyle=col; c.fill(p); c.strokeStyle=col; c.lineWidth=1.6; c.stroke(p); }); });
   list.forEach(f=>{ const L=labelPos(f); c.font=`800 ${L.size.toFixed(1)}px Söhne, "Bricolage Grotesque", sans-serif`; c.textAlign='center';
-    c.lineWidth=4; c.strokeStyle='#FFFFFF'; c.lineJoin='round'; c.strokeText(fname(f), L.x, L.y+L.size/3); c.fillStyle=IMGCOL.ink; c.fillText(fname(f), L.x, L.y+L.size/3); });
+    const tw=c.measureText(fname(f)).width, lx=Math.min(W-8-tw/2, Math.max(8+tw/2, L.x));
+    c.lineWidth=4; c.strokeStyle='#FFFFFF'; c.lineJoin='round'; c.strokeText(fname(f), lx, L.y+L.size/3); c.fillStyle=IMGCOL.ink; c.fillText(fname(f), lx, L.y+L.size/3); });
   c.restore();
-  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Daten: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+18);
+  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Daten: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+18); if (CONFIG.shareUrl){ c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('Mach mit: ' + CONFIG.shareUrl.replace(/^https?:\/\//,'').replace(/\/$/,''), 22, H+top+38); }
   try { return cv.toDataURL('image/png'); } catch(e){ return null; }
 }
 $('sendform').addEventListener('submit', async e=>{
@@ -701,13 +705,22 @@ function restoreFromHash(){
   if (ok){ $('sharedbanner').hidden=false; render(); }
   return ok;
 }
+function downloadMap(){
+  try {
+    const png = makeImage(fusions, 'Mein neues Vorarlberg'); if (!png) return false;
+    const bin = atob(png.split(',')[1]); const arr = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([arr], {type:'image/png'}));
+    const a = document.createElement('a'); a.href=url; a.download='mein-neues-vorarlberg.png'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000); return true;
+  } catch(e){ return false; }
+}
 async function shareNative(f){
   const url=shareLink(fusions), text=shareText(f);
   try {
-    const png = makeImage([f], fname(f));
+    const png = makeImage(fusions, 'Mein neues Vorarlberg');
     if (png && navigator.canShare){
       const blob = await (await fetch(png)).blob();
-      const file = new File([blob], 'meine-fusion.png', {type:'image/png'});
+      const file = new File([blob], 'mein-neues-vorarlberg.png', {type:'image/png'});
       if (navigator.canShare({files:[file]})) { await navigator.share({files:[file], text:`${text} ${url}`}); return true; }
     }
     if (navigator.share){ await navigator.share({text, url}); return true; }
