@@ -206,30 +206,24 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
       </section>
 
       <section class="card" id="sendcard" aria-labelledby="h-send" hidden>
-        <h2 id="h-send">An NEOS schicken</h2>
-        <p class="intro">Schick uns deine Fusion oder deine ganze neue Karte. Die besten stellen wir als „Fusion der Woche“ vor.</p>
+        <h2 id="h-send">Deine Karte nimmt an unserem Gewinnspiel teil</h2>
+        <p class="intro">Schick uns dein neues Vorarlberg und sag uns, warum du so fusionieren würdest. Die besten Karten stellen wir als „Fusion der Woche“ vor.</p>
         <form id="sendform" novalidate>
-          <fieldset class="choice"><legend>Was willst du schicken?</legend>
-            <label class="opt" for="opt-one"><input type="radio" name="what" id="opt-one" value="fusion" checked> <span id="opt-one-label">Diese Fusion</span></label>
-            <label class="opt" for="opt-map"><input type="radio" name="what" id="opt-map" value="karte"> <span id="opt-map-label">Meine ganze neue Karte</span></label>
-          </fieldset>
           <label for="f-msg">Warum würdest du das so machen? *</label>
           <textarea id="f-msg" rows="4" maxlength="600" required placeholder="Zum Beispiel: Die Grenze merkt man bei uns nur am Ortsschild."></textarea>
           <div class="two">
-            <div><label for="f-name">Vorname</label><input type="text" id="f-name" maxlength="40" autocomplete="given-name"></div>
-            <div><label for="f-ort">Wohnort</label><input type="text" id="f-ort" maxlength="40" list="gemlist"></div>
+            <div><label for="f-name">Name *</label><input type="text" id="f-name" maxlength="60" autocomplete="name"></div>
+            <div><label for="f-ort">Wohnort (freiwillig)</label><input type="text" id="f-ort" maxlength="40" list="gemlist"></div>
           </div>
-          <label for="f-mail">E-Mail</label>
-          <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="Wenn du willst, dass wir deine Fusion bewerten :)">
+          <label for="f-mail">E-Mail *</label>
+          <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="Damit wir dich verständigen können, wenn du gewinnst">
           <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input type="text" id="f-web" tabindex="-1" autocomplete="off"></div>
-          <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich möchte in Zukunft von NEOS über weitere Themen informiert werden. Abmelden geht jederzeit.</span></label>
-          <label class="check" for="f-pub"><input type="checkbox" id="f-pub"> <span id="t-pub">NEOS darf meine Fusion mit Vorname und Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“.</span></label>
-          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich mache beim Gewinnspiel mit (dafür brauchen wir deine E-Mail-Adresse).</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
-          <label class="check" for="f-ok"><input type="checkbox" id="f-ok"> <span id="t-ok">Ich bin einverstanden, dass NEOS Vorarlberg meine Einsendung samt Nachricht speichert und auswertet. *</span></label>
-          <p class="note">Wir verwenden deine Angaben nur, um deine Einsendung zu bearbeiten, und – wenn du es angekreuzt hast – um dich über weitere Themen zu informieren. * Pflichtfeld. Für deine Nachricht und selbst gewählte Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
-          <div class="row"><button class="btn big" id="sendbtn" type="submit">An NEOS schicken</button><span id="sendmsg" class="sendmsg" role="status"></span></div>
+          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich will beim Gewinnspiel teilnehmen. *</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
+          <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich will den NEOS-Newsletter abonnieren, um weitere Infos zu erhalten. Abmelden geht jederzeit.</span></label>
+          <p class="note" id="t-ok">Mit deiner Teilnahme willigst du ein, dass NEOS Vorarlberg deine Angaben, deine Karte und deine Nachricht im Rahmen des Gewinnspiels verarbeitet. Deine eingesendete Karte darf NEOS mit deinem Vornamen und – falls angegeben – deinem Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“. Bis auf die Newsletter-Anmeldung werden alle Daten nach Ende des Gewinnspiels gelöscht. Für deine Nachricht und selbst vergebene Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. * Pflichtfeld. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
+          <div class="row"><button class="btn big" id="sendbtn" type="submit">Mein neues Vorarlberg an NEOS senden</button><span id="sendmsg" class="sendmsg" role="status"></span></div>
         </form>
-        <div id="sendok" class="ok" hidden><p class="name">Danke!</p><p>Deine Fusion ist bei uns angekommen. Vielleicht ist sie bald die „Fusion der Woche“.</p></div>
+        <div id="sendok" class="ok" hidden><p class="name">Danke!</p><p>Dein neues Vorarlberg ist bei uns angekommen und nimmt am Gewinnspiel teil. Vielleicht ist es bald die „Fusion der Woche“.</p></div>
         <div id="preview" class="preview" hidden></div>
       </section>
 
@@ -357,6 +351,7 @@ function facts(members, nameNow){
     F.push(`${fmt(s.a)} km² Gemeindegebiet – größer als ganz Luxemburg (2.586 km²).`);
     F.push(`Statt 96 Bürgermeister*innen gibt es genau eine*n. Die Bürgermeisterkonferenz passt in einen Lift.`);
     F.push(`Gemeindevertretung: statt rund ${fmt(s.m)} Mandaten nur noch ${s.newM}. Mit den frei gewordenen Sesseln könnte man ${fmt(Math.floor((s.m-s.newM)/40))} Blasmusikkapellen besetzen.`);
+    F.push(`${fmt(s.u15)} Kinder unter 15 in einer Gemeinde: Kinderbetreuung aus einem Guss, von Lech bis Lochau.`);
     F.push(`Rund ${fmt(borderKm(members))} km Gemeindegrenzen verschwinden – mehr als einmal Bregenz–Wien und zurück, Luftlinie.`);
     return {s, F};
   }
@@ -378,8 +373,9 @@ function facts(members, nameNow){
   else if (d < STATE.dens/2) F.push(`Nur ${fmt(d)} Einwohner pro km² auf ${fmt(s.a)} km². Viel Platz, wenig Gemeindeamt.`);
   else F.push(`${fmt(s.a)} km² Fläche, so groß wie ${fmt(s.a*1e6/7140)} Fußballfelder.`);
   const sp = spanKm(members);
-  if (s.n >= 3 && sp >= 8) F.push(`Von einem Ende zum anderen rund ${fmt(sp)} km Luftlinie – kürzer als so mancher Weg durch die Zuständigkeiten.`);
-  if (s.u15 >= 250) F.push(`${fmt(s.u15)} Kinder unter 15 – so viele wie in rund ${fmt(s.u15/25)} Schulklassen. Eine gemeinsame Gemeinde kann für sie besser planen.`);
+  if (s.n >= 3 && sp >= 8) F.push(`Von einem Ende zum anderen rund ${fmt(sp)} km Luftlinie – kürzer als so mancher Weg durch die Bürokratie.`);
+  if (s.u15 >= 100) F.push(`${fmt(s.u15)} Kinder unter 15 in einer Gemeinde: genug, um Kinderbetreuung gemeinsam zu planen – mit längeren Öffnungszeiten und Ferienbetreuung${s.maxSingle < 2000 ? ' statt einer Mini-Gruppe in jedem Ort' : ''}.`);
+  F.push(`Vorbild Steiermark: Seit der Gemeindereform gibt es dort rund 60 % mehr Kinderbetreuungseinrichtungen.`);
   const zw = pct(s.zw, s.p);
   if (zw > STATE.zw*2.5) F.push(`Ferienwohnungs-Hotspot: Auf 100 Hauptwohnsitze kommen ${fmt(zw)} Zweitwohnsitze (Land: ${fmt(STATE.zw)}).`);
   const u = pct(s.u15,s.p), o = pct(s.o60,s.p);
@@ -516,7 +512,7 @@ function renderResult(fresh){
   b2.onclick=()=>{ const txt = `${fname(f)}: ${names.join(' + ')} = ${fmt(s.p)} Einwohner, ${s.n} Gemeindeämter werden zu einem. Mein neues Vorarlberg im NEOS Gemeindefusionierer. #FusionStattIllusion`;
     const done=()=>{toast.textContent='Kopiert';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
     try { navigator.clipboard.writeText(txt).then(done, fail); } catch(e){ fail(); } };
-  row.append(b1,b4,b3);
+  row.append(b1,b3);
   const sh = add('div','share');
   const sl=document.createElement('p'); sl.className='sharelabel'; sl.textContent='Mit Freund*innen teilen'; sh.appendChild(sl);
   const sr=document.createElement('div'); sr.className='row tight'; sh.appendChild(sr);
@@ -524,9 +520,6 @@ function renderResult(fresh){
   const mk=(label,href)=>{ const a=document.createElement('a'); a.className='btn'; a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener'; return a; };
   if (navigator.share){ const bn=document.createElement('button'); bn.className='btn big small'; bn.textContent='Teilen'; bn.onclick=async()=>{ if(!(await shareNative(f))) toast.textContent='Teilen ging nicht – nimm „Link kopieren“.'; }; sr.appendChild(bn); }
   const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
-  sr.appendChild(mk('WhatsApp', `https://wa.me/?text=${enc(text+' '+url)}`));
-  sr.appendChild(mk('Facebook', `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`));
-  sr.appendChild(mk('Telegram', `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`));
   b2.textContent='Link kopieren';
   b2.onclick=()=>{ const txt = `${text} ${url}`;
     const done=()=>{toast.textContent='Link kopiert – jetzt einfügen und verschicken.';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
@@ -593,22 +586,15 @@ function boom(members){
 
 /* ---------- An NEOS schicken ---------- */
 function renderSend(){
-  const f = fusions.find(x=>x.id===active);
-  const has = fusions.length>0;
-  $('sendcard').hidden = !has;
-  if (!has) return;
-  $('opt-one-label').textContent = f ? `Diese Fusion: ${fname(f)}` : 'Diese Fusion (bitte eine auswählen)';
-  $('opt-one').disabled = !f;
-  if (!f) $('opt-map').checked = true;
-  $('opt-map-label').textContent = `Meine ganze neue Vorarlberg-Karte (${fusions.length} ${fusions.length===1?'Fusion':'Fusionen'}, ${N - fusions.reduce((s,x)=>s+x.m.length-1,0)} Gemeinden)`;
+  $('sendcard').hidden = fusions.length===0;
 }
 function fusionData(f){ const s=stats(f.m); return { name: fname(f), namensvorschlag_eigen: !!f.custom, gemeinden: f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de')), einwohner: s.p, flaeche_km2: Math.round(s.a*10)/10, mandate_vorher: s.m, mandate_nachher: s.newM }; }
 const IMGCOL = {map:'#E6DFEA', edge:'#FFFFFF', ink:'#1D1722', muted:'#6B6274', pink:'#E6007E', bg:'#F6F3F7', g:{'--g1':'#E6007E','--g2':'#0E9F8E','--g3':'#E08A00','--g4':'#6C4BD8','--g5':'#1F7AE0','--g6':'#C2410C'}};
 function makeImage(list, title){
   const S=1.2, top=142, W=620, H=965;
-  const cv=document.createElement('canvas'); cv.width=W*S; cv.height=(H+top+48)*S;
+  const cv=document.createElement('canvas'); cv.width=W*S; cv.height=(H+top+70)*S;
   const c=cv.getContext('2d'); c.scale(S,S);
-  c.fillStyle=IMGCOL.bg; c.fillRect(0,0,W,H+top+48);
+  c.fillStyle=IMGCOL.bg; c.fillRect(0,0,W,H+top+70);
   c.fillStyle=IMGCOL.pink; c.fillRect(0,0,W,52);
   c.fillStyle='#FFFFFF'; c.font='800 24px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText('NEOS Vorarlberg', 22, 35);
   c.textAlign='right'; c.font='600 15px Söhne, Figtree, sans-serif'; c.fillText('Der Gemeindefusionierer', W-22, 33); c.textAlign='left';
@@ -624,31 +610,31 @@ function makeImage(list, title){
     const tw=c.measureText(fname(f)).width, lx=Math.min(W-8-tw/2, Math.max(8+tw/2, L.x));
     c.lineWidth=4; c.strokeStyle='#FFFFFF'; c.lineJoin='round'; c.strokeText(fname(f), lx, L.y+L.size/3); c.fillStyle=IMGCOL.ink; c.fillText(fname(f), lx, L.y+L.size/3); });
   c.restore();
-  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Daten: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+18); if (CONFIG.shareUrl){ c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('Mach mit: ' + CONFIG.shareUrl.replace(/^https?:\/\//,'').replace(/\/$/,''), 22, H+top+38); }
+  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Datenstand: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+16); c.font='500 10px Söhne, Figtree, sans-serif'; c.fillText('Selbst vergebene Namen stammen von Nutzer*innen. NEOS ist für diese Namen nicht verantwortlich.', 22, H+top+32); if (CONFIG.shareUrl){ c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('Mach mit: ' + CONFIG.shareUrl.replace(/^https?:\/\//,'').replace(/\/$/,''), 22, H+top+54); }
   try { return cv.toDataURL('image/png'); } catch(e){ return null; }
 }
 $('sendform').addEventListener('submit', async e=>{
   e.preventDefault();
   const out=$('sendmsg'); out.className='sendmsg'; out.textContent='';
-  const which = $('opt-map').checked ? 'karte' : 'fusion';
-  const f = fusions.find(x=>x.id===active);
-  const list = which==='karte' ? fusions : (f ? [f] : []);
+  const which = 'karte';
+  const list = fusions;
   const msg=$('f-msg').value.trim(), mail=$('f-mail').value.trim(), news=$('f-news').checked;
   if (!list.length){ out.textContent='Bitte zuerst eine Fusion bauen.'; out.classList.add('err'); return; }
   if (msg.length<3){ out.textContent='Schreib uns bitte kurz, warum du das so machen würdest.'; out.classList.add('err'); $('f-msg').focus(); return; }
-  if ($('f-win').checked && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Fürs Gewinnspiel brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
-  if (!$('f-ok').checked){ out.textContent='Bitte bestätige, dass wir deine Einsendung speichern dürfen.'; out.classList.add('err'); $('f-ok').focus(); return; }
+  if ($('f-name').value.trim().length<2){ out.textContent='Bitte gib deinen Namen an.'; out.classList.add('err'); $('f-name').focus(); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Bitte gib eine gültige E-Mail-Adresse an, damit wir dich verständigen können.'; out.classList.add('err'); $('f-mail').focus(); return; }
+  if (!$('f-win').checked){ out.textContent='Bitte bestätige, dass du beim Gewinnspiel teilnehmen willst.'; out.classList.add('err'); $('f-win').focus(); return; }
   if (news && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Für Infos von NEOS brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
   if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Die E-Mail-Adresse sieht nicht richtig aus.'; out.classList.add('err'); $('f-mail').focus(); return; }
-  const title = which==='karte' ? 'Mein neues Vorarlberg' : fname(list[0]);
+  const title = 'Mein neues Vorarlberg';
   const payload = {
     art: which, gesendet_am: new Date().toISOString(),
     gemeinden_gesamt: N - list.reduce((s,x)=>s+x.m.length-1,0),
     fusionen: list.map(fusionData),
     nachricht: msg, vorname: $('f-name').value.trim(), wohnort: $('f-ort').value.trim(),
-    email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-pub').checked,
+    email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-win').checked,
     gewinnspiel: $('f-win').checked, link: shareLink(list), einwilligung_text: $('t-ok').textContent,
-    newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-pub').textContent,
+    newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-ok').textContent,
     quelle: location.href.split('#')[0], website: $('f-web').value,
     bild_png: CONFIG.includeImage ? makeImage(list, title) : null
   };
