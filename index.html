@@ -151,8 +151,35 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .optlabel{font-weight:400;color:var(--muted)}
 #sendbtn:disabled{opacity:.45;cursor:not-allowed}
-</style>
 
+/* ---------- Website-Modus (eingebettet auf vorarlberg.neos.eu) ---------- */
+html.web{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#000000; --muted:#5E5E5E; --line:#E3E3E3;
+  --map:#ECE7EE; --mapEdge:#FFFFFF; --pink:#CB1967; --pinkInk:#A3104F; --pinkSoft:#FAE6EE; --sel:#EC9ABD;
+  --halo:#FFFFFF; --cand:#F7D5E3; --g1:#CB1967; --yellow:#F6D000;
+}
+html.web body{background:transparent}
+html.web .wrap{max-width:1110px;padding-inline:0;padding-block:8px 24px}
+html.web .kicker{color:var(--pink)}
+html.web h1{font-weight:700;font-size:clamp(24px,3.4vw,38px);line-height:1.05;letter-spacing:0;text-transform:uppercase}
+html.web .sub{color:var(--ink)}
+html.web .counter{background:var(--pink);border-color:var(--pink);border-radius:4px}
+html.web .counter b{color:var(--yellow)}
+html.web .counter span,html.web .counter s{color:#fff}
+html.web .mapbox,html.web .card{border-radius:4px}
+html.web .card h2{color:var(--ink)}
+html.web .btn{border-radius:999px;border-color:rgba(0,0,0,.2)}
+html.web .btn:hover{border-color:var(--pink);color:var(--pink)}
+html.web .btn.big,html.web .btn.big:hover{color:#fff}
+html.web .btn.big{font-weight:700;padding:11px 22px 11px 24px}
+html.web #fuse::after{content:"\2192";margin-left:10px}
+html.web input[type=text],html.web input[type=email],html.web textarea{background:#fff;border:1px solid rgba(0,0,0,.2);border-radius:4px}
+html.web .punch{background:var(--pink);color:var(--yellow);border-radius:4px}
+html.web .fitem{border-radius:4px}
+html.web .banner{border-radius:4px}
+html.web footer .fun{font-size:22px;color:var(--pink)}
+</style>
+<script>if(window.parent!==window){document.documentElement.classList.add('web');document.documentElement.setAttribute('data-theme','light');}</script>
 </head>
 <body>
 <div class="wrap">

@@ -151,8 +151,35 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .optlabel{font-weight:400;color:var(--muted)}
 #sendbtn:disabled{opacity:.45;cursor:not-allowed}
-</style>
 
+/* ---------- Website-Modus (eingebettet auf vorarlberg.neos.eu) ---------- */
+html.web{
+  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#000000; --muted:#5E5E5E; --line:#E3E3E3;
+  --map:#ECE7EE; --mapEdge:#FFFFFF; --pink:#CB1967; --pinkInk:#A3104F; --pinkSoft:#FAE6EE; --sel:#EC9ABD;
+  --halo:#FFFFFF; --cand:#F7D5E3; --g1:#CB1967; --yellow:#F6D000;
+}
+html.web body{background:transparent}
+html.web .wrap{max-width:1110px;padding-inline:0;padding-block:8px 24px}
+html.web .kicker{color:var(--pink)}
+html.web h1{font-weight:700;font-size:clamp(24px,3.4vw,38px);line-height:1.05;letter-spacing:0;text-transform:uppercase}
+html.web .sub{color:var(--ink)}
+html.web .counter{background:var(--pink);border-color:var(--pink);border-radius:4px}
+html.web .counter b{color:var(--yellow)}
+html.web .counter span,html.web .counter s{color:#fff}
+html.web .mapbox,html.web .card{border-radius:4px}
+html.web .card h2{color:var(--ink)}
+html.web .btn{border-radius:999px;border-color:rgba(0,0,0,.2)}
+html.web .btn:hover{border-color:var(--pink);color:var(--pink)}
+html.web .btn.big,html.web .btn.big:hover{color:#fff}
+html.web .btn.big{font-weight:700;padding:11px 22px 11px 24px}
+html.web #fuse::after{content:"\2192";margin-left:10px}
+html.web input[type=text],html.web input[type=email],html.web textarea{background:#fff;border:1px solid rgba(0,0,0,.2);border-radius:4px}
+html.web .punch{background:var(--pink);color:var(--yellow);border-radius:4px}
+html.web .fitem{border-radius:4px}
+html.web .banner{border-radius:4px}
+html.web footer .fun{font-size:22px;color:var(--pink)}
+</style>
+<script>if(window.parent!==window){document.documentElement.classList.add('web');document.documentElement.setAttribute('data-theme','light');}</script>
 </head>
 <body>
 <div class="wrap">
@@ -239,7 +266,7 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
     <span><b>Eigene Inhalte:</b> Selbst eingegebene Gemeindenamen, Nachrichten und andere Texte stammen von den Nutzer*innen. Für abwertende, beleidigende oder sonst unangemessene Inhalte ist allein die Person verantwortlich, die sie erstellt hat; NEOS macht sich solche Inhalte nicht zu eigen und veröffentlicht sie nicht.</span>
     <span><b>Mit KI erstellt.</b> Der Fusionierer wurde mit Unterstützung von KI gebaut. Die Daten stammen aus dem Web und aus aktuellen Studien und Berichten, unter anderem: <a href="https://vorarlberg.at/-/22_verwaltungszaehlung" target="_blank" rel="noopener">Landesstatistik Vorarlberg, Bevölkerungsstand 30.06.2026</a> · <a href="https://ssas-yearbook.com/articles/10.5334/ssas.131" target="_blank" rel="noopener">Fetz &amp; Derungs (2020): Gemeindefusionen in der Schweiz</a> · <a href="https://www.news.steiermark.at/cms/beitrag/12767550/154271055/" target="_blank" rel="noopener">Land Steiermark: Bilanz der Gemeindestrukturreform</a> · <a href="https://www.gl.ch/public/upload/assets/33745/180708%20fusion%20schw.gemeinden.pdf?fp=2" target="_blank" rel="noopener">Kanton Glarus: Fusionen – Bilanz in Glarus (2018)</a> · <a href="https://vorarlberg.orf.at/stories/3343149" target="_blank" rel="noopener">Landes-Rechnungshof Vorarlberg zu Gemeindefusionen (ORF, 2026)</a> · <a href="https://ris.bka.gv.at/NormDokument.wxe?Abfrage=LrVbg&amp;Gesetzesnummer=20000047&amp;Paragraf=34" target="_blank" rel="noopener">§ 34 Gemeindegesetz Vorarlberg</a>.</span>
     <span>Einwohner (Hauptwohnsitz), Zweitwohnsitze und Altersgruppen: Landesstatistik Vorarlberg, Stichtag 30.06.2026. Gemeindevertretung nach § 34 Gemeindegesetz, gerechnet mit aktuellen Einwohnerzahlen. Grenzen: Statistik Austria (vereinfacht), Flächen daraus berechnet.</span>
-    <span class="fun">Viel Spaß beim Fusionieren!</span>
+    <span class="fun" id="fun">Viel Spaß beim Fusionieren!</span>
   </footer>
 </div>
 <div id="tip" hidden></div>
@@ -765,6 +792,7 @@ if (!restoreFromHash()){
 
 <script>
 (function(){ if (window.parent===window) return;
+  var fun=document.getElementById('fun'); if (fun) fun.textContent='Wie würdest du fusionieren? Schreib uns gleich hier unten. \u2193';
   var st=document.createElement('style'); st.textContent='svg#map{max-height:760px!important}@media (max-width:860px){svg#map{max-height:560px!important}}'; document.head.appendChild(st);
   var last=0; function send(){ var h=Math.ceil(document.body.getBoundingClientRect().height); if (Math.abs(h-last)>4){ last=h; parent.postMessage({fusionierer:'hoehe', h:h}, '*'); } }
   new ResizeObserver(send).observe(document.documentElement); window.addEventListener('load', send); setInterval(send, 1500);
