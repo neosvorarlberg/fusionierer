@@ -152,6 +152,19 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
 .optlabel{font-weight:400;color:var(--muted)}
 #sendbtn:disabled{opacity:.45;cursor:not-allowed}
 
+/* ---------- Handy ---------- */
+.mbar,.mobonly{display:none}
+@media (max-width:860px){
+  .mbar:not([hidden]){display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 6px 4px;border-top:1px solid var(--line);margin-top:6px}
+  .mtxt{flex:1 1 140px;font-size:14px;font-weight:600;line-height:1.3;min-width:0;overflow-wrap:anywhere}
+  .mbar .btn.big{font-size:16px;padding:10px 18px}
+  .mobonly{display:inline}
+  input[type=text],input[type=email],textarea{font-size:16px!important}
+}
+@media (pointer:coarse){ .btn{min-height:44px} .presets .btn{min-height:40px} }
+html.web .mbar .btn.big{border-radius:999px}
+@media (max-width:600px){ html.web .wrap{padding-inline:14px} }
+
 /* ---------- Website-Modus (eingebettet auf vorarlberg.neos.eu) ---------- */
 html.web{
   --bg:#FFFFFF; --surface:#FFFFFF; --ink:#000000; --muted:#5E5E5E; --line:#E3E3E3;
@@ -198,7 +211,8 @@ html.web footer .fun{font-size:22px;color:var(--pink)}
       <svg id="map" viewBox="0 0 620 965" role="img" aria-label="Karte der 96 Vorarlberger Gemeinden">
         <g id="base"></g><g id="fus"></g><g id="labels"></g>
       </svg>
-      <div class="maphint"><span>Nur Nachbargemeinden lassen sich fusionieren</span><span>Stand 30.06.2026</span></div>
+      <div id="mbar" class="mbar" hidden><div class="mtxt" id="mtxt"></div><button class="btn big" id="mfuse" type="button" disabled>Fusionieren!</button></div>
+      <div class="maphint"><span>Nur Nachbargemeinden lassen sich fusionieren</span><span class="mobonly">Kleine Gemeinde? Schneller über die Suche.</span><span>Stand 30.06.2026</span></div>
     </div>
 
     <div class="panel">
@@ -502,6 +516,8 @@ function render(){
   const ok = sel.size >= 2 && connected([...sel]);
   $('fuse').disabled = !ok;
   $('fuse').textContent = sel.size>=2 ? `${sel.size} Gemeinden fusionieren!` : 'Fusionieren!';
+  if ($('mbar')){ $('mbar').hidden = !sel.size; $('mfuse').disabled = !ok; $('mfuse').textContent = $('fuse').textContent;
+    $('mtxt').textContent = sel.size===1 ? G[[...sel][0]].n + ' – jetzt eine Nachbargemeinde antippen' : [...sel].map(i=>G[i].n).join(' + ') + (ok ? '' : ' – hängt nicht zusammen'); }
   $('hint').textContent = hintMsg || (sel.size===1 ? 'Jetzt eine Nachbargemeinde antippen – die möglichen Partner sind gestrichelt markiert.' : '');
   const count = N - fusions.reduce((s,f)=>s+f.m.length-1,0);
   $('count').textContent = count;
@@ -549,7 +565,7 @@ function renderResult(fresh){
   const url=shareLink(fusions), text=shareText(f), enc=encodeURIComponent;
   const mk=(label,href)=>{ const a=document.createElement('a'); a.className='btn'; a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener'; return a; };
   if (navigator.share){ const bn=document.createElement('button'); bn.className='btn big small'; bn.textContent='Teilen'; bn.onclick=async()=>{ if(!(await shareNative(f))) toast.textContent='Teilen ging nicht – nimm „Link kopieren“.'; }; sr.appendChild(bn); }
-  const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
+  const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ if (matchMedia('(pointer:coarse)').matches && navigator.canShare){ try{ const png=makeImage(fusions,'Mein neues Vorarlberg'); const bin=atob(png.split(',')[1]); const arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); const file=new File([arr],'mein-neues-vorarlberg.png',{type:'image/png'}); if (navigator.canShare({files:[file]})){ navigator.share({files:[file]}).then(()=>{ toast.textContent='Fertig – mit „Bild sichern“ landet die Karte in deinen Fotos.'; }).catch(e=>{ if(!e||e.name!=='AbortError'){ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; } }); return; } }catch(e){} } toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
   b2.textContent='Link kopieren';
   b2.onclick=()=>{ const txt = url;
     const done=()=>{toast.textContent='Link kopiert – jetzt einfügen und verschicken.';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
@@ -761,7 +777,8 @@ async function shareNative(f){
 }
 
 /* ---------- Controls ---------- */
-$('fuse').onclick = ()=> fuse([...sel]);
+$('fuse').onclick = ()=>{ fuse([...sel]); if (matchMedia('(max-width:860px)').matches) setTimeout(()=>{ try{ $('result').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} },60); };
+$('mfuse').onclick = ()=> $('fuse').click();
 $('clear').onclick = ()=>{ sel.clear(); hintMsg=''; render(); };
 $('reset').onclick = ()=>{ fusions=[]; sel.clear(); active=null; hintMsg=''; render(); };
 $('random').onclick = ()=>{
@@ -793,7 +810,7 @@ if (!restoreFromHash()){
 <script>
 (function(){ if (window.parent===window) return;
   var fun=document.getElementById('fun'); if (fun) fun.textContent='Wie würdest du fusionieren? Schreib uns gleich hier unten. \u2193';
-  var st=document.createElement('style'); st.textContent='svg#map{max-height:760px!important}@media (max-width:860px){svg#map{max-height:560px!important}}'; document.head.appendChild(st);
+  var st=document.createElement('style'); st.textContent='svg#map{max-height:760px!important}@media (max-width:860px){svg#map{max-height:470px!important}}'; document.head.appendChild(st);
   var last=0; function send(){ var h=Math.ceil(document.body.getBoundingClientRect().height); if (Math.abs(h-last)>4){ last=h; parent.postMessage({fusionierer:'hoehe', h:h}, '*'); } }
   new ResizeObserver(send).observe(document.documentElement); window.addEventListener('load', send); setInterval(send, 1500);
 })();
