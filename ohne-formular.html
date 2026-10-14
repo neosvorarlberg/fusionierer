@@ -765,7 +765,8 @@ if (!restoreFromHash()){
 
 <script>
 (function(){ if (window.parent===window) return;
-  var last=0; function send(){ var h=document.documentElement.scrollHeight; if (Math.abs(h-last)>4){ last=h; parent.postMessage({fusionierer:'hoehe', h:h}, '*'); } }
+  var st=document.createElement('style'); st.textContent='svg#map{max-height:760px!important}@media (max-width:860px){svg#map{max-height:560px!important}}'; document.head.appendChild(st);
+  var last=0; function send(){ var h=Math.ceil(document.body.getBoundingClientRect().height); if (Math.abs(h-last)>4){ last=h; parent.postMessage({fusionierer:'hoehe', h:h}, '*'); } }
   new ResizeObserver(send).observe(document.documentElement); window.addEventListener('load', send); setInterval(send, 1500);
 })();
 </script>
