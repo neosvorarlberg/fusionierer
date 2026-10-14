@@ -524,7 +524,7 @@ function renderResult(fresh){
   if (navigator.share){ const bn=document.createElement('button'); bn.className='btn big small'; bn.textContent='Teilen'; bn.onclick=async()=>{ if(!(await shareNative(f))) toast.textContent='Teilen ging nicht – nimm „Link kopieren“.'; }; sr.appendChild(bn); }
   const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
   b2.textContent='Link kopieren';
-  b2.onclick=()=>{ const txt = `${text} ${url}`;
+  b2.onclick=()=>{ const txt = url;
     const done=()=>{toast.textContent='Link kopiert – jetzt einfügen und verschicken.';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
     try { navigator.clipboard.writeText(txt).then(done, fail); } catch(e){ fail(); } };
   sr.appendChild(b2); sh.appendChild(toast);
@@ -714,16 +714,9 @@ function downloadMap(){
   } catch(e){ return false; }
 }
 async function shareNative(f){
-  const url=shareLink(fusions), text=shareText(f);
-  try {
-    const png = makeImage(fusions, 'Mein neues Vorarlberg');
-    if (png && navigator.canShare){
-      const blob = await (await fetch(png)).blob();
-      const file = new File([blob], 'mein-neues-vorarlberg.png', {type:'image/png'});
-      if (navigator.canShare({files:[file]})) { await navigator.share({files:[file], text:`${text} ${url}`}); return true; }
-    }
-    if (navigator.share){ await navigator.share({text, url}); return true; }
-  } catch(e){ if (e && e.name==='AbortError') return true; }
+  const url=shareLink(fusions);
+  try { await navigator.share({title:'Mein neues Vorarlberg – Der NEOS Gemeindefusionierer', url}); return true; }
+  catch(e){ if (e && e.name==='AbortError') return true; }
   return false;
 }
 
@@ -748,6 +741,7 @@ $('search').addEventListener('input', e=>{ const v=e.target.value.trim(); const 
   if (i!==undefined){ addToSel(i); e.target.value=''; render(); } });
 $('search').addEventListener('keydown', e=>{ if (e.key==='Enter'){ const v=e.target.value.trim().toLowerCase(); const g=G.find(x=>x.n.toLowerCase().startsWith(v)); if (g){ addToSel(idx[g.n]); e.target.value=''; render(); } } });
 
+window.addEventListener('hashchange', ()=>{ if (/karte=/.test(location.hash)){ fusions=[]; active=null; sel.clear(); restoreFromHash(); render(); window.scrollTo(0,0); } });
 /* Start: Beispiel Dünserberg + Düns */
 if (!restoreFromHash()){
   fuse([idx['Dünserberg'], idx['Düns']], true);
