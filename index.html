@@ -588,8 +588,21 @@ function boom(members){
 }
 
 /* ---------- An NEOS schicken ---------- */
+const EXTERN = /[?&]formular=extern\b/.test(location.search) && window.parent !== window;
+let externTimer = null;
+function meldeKarte(){
+  if (!EXTERN) return;
+  clearTimeout(externTimer);
+  externTimer = setTimeout(()=>{
+    const cnt = N - fusions.reduce((t,x)=>t+x.m.length-1,0);
+    const gem = `${cnt} statt 96 · ` + fusions.map(f=>`${fname(f)} (${f.m.map(i=>G[i].n).join(' + ')})`).join(' | ');
+    let png = null; try { png = fusions.length ? makeImage(fusions, 'Mein neues Vorarlberg') : null; } catch(e){}
+    parent.postMessage({fusionierer:'karte', link: fusions.length ? shareLink(fusions) : '', gemeinden: fusions.length ? gem : '', png}, '*');
+  }, 700);
+}
 function renderSend(){
-  $('sendcard').hidden = fusions.length===0;
+  $('sendcard').hidden = EXTERN || fusions.length===0;
+  meldeKarte();
 }
 function fusionData(f){ const s=stats(f.m); return { name: fname(f), namensvorschlag_eigen: !!f.custom, gemeinden: f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de')), einwohner: s.p, flaeche_km2: Math.round(s.a*10)/10, mandate_vorher: s.m, mandate_nachher: s.newM }; }
 const IMGCOL = {map:'#E6DFEA', edge:'#FFFFFF', ink:'#1D1722', muted:'#6B6274', pink:'#E6007E', bg:'#F6F3F7', g:{'--g1':'#E6007E','--g2':'#0E9F8E','--g3':'#E08A00','--g4':'#6C4BD8','--g5':'#1F7AE0','--g6':'#C2410C'}};

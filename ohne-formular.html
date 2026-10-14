@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="Der NEOS Gemeindefusionierer">
+<meta property="og:description" content="96 Gemeinden sind zu viel. Klick dir dein neues Vorarlberg zusammen.">
+<title>Der NEOS Gemeindefusionierer</title>
+<style>
+html{color-scheme:light}body{margin:0;font-size:14px}[hidden]{display:none!important}img{max-width:100%}
+
+@font-face{font-family:'Söhne';font-weight:400;font-style:normal;font-display:swap;src:local('Sohne-Buch'),local('Söhne')}
+@font-face{font-family:'Söhne';font-weight:500;font-style:normal;font-display:swap;src:local('Söhne Kräftig'),local('Sohne-Kraftig')}
+@font-face{font-family:'Söhne';font-weight:600 700;font-style:normal;font-display:swap;src:local('Söhne Bold'),local('Sohne-Dreiviertelfett')}
+@font-face{font-family:'Söhne';font-weight:800 900;font-style:normal;font-display:swap;src:local('Söhne Fett'),local('Sohne-Fett')}
+
+:root{
+  --bg:#F6F3F7; --surface:#FFFFFF; --ink:#1D1722; --muted:#6B6274; --line:#E4DDE8;
+  --map:#E6DFEA; --mapEdge:#FFFFFF; --pink:#E6007E; --pinkInk:#B80065; --pinkSoft:#FDE4F1; --sel:#FF9ACF;
+  --halo:#FFFFFF; --focus:#1F7AE0; --cand:#F9D3E8;
+  --g1:#E6007E; --g2:#0E9F8E; --g3:#E08A00; --g4:#6C4BD8; --g5:#1F7AE0; --g6:#C2410C;
+  --display:"Söhne", "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body:"Söhne", "Figtree", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#141117; --surface:#1E1A23; --ink:#F3EEF6; --muted:#A99FB2; --line:#342C3B;
+    --map:#2C2532; --mapEdge:#141117; --pink:#FF3FA4; --pinkInk:#FF7CBF; --pinkSoft:#3B1A2D; --sel:#B8317A;
+    --halo:#141117; --focus:#6FB0FF; --cand:#4A2238;
+    --g1:#FF3FA4; --g2:#2CC7B3; --g3:#F5A524; --g4:#9A82F0; --g5:#5AA2F5; --g6:#F0703A;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#141117; --surface:#1E1A23; --ink:#F3EEF6; --muted:#A99FB2; --line:#342C3B;
+  --map:#2C2532; --mapEdge:#141117; --pink:#FF3FA4; --pinkInk:#FF7CBF; --pinkSoft:#3B1A2D; --sel:#B8317A;
+  --halo:#141117; --focus:#6FB0FF; --cand:#4A2238;
+  --g1:#FF3FA4; --g2:#2CC7B3; --g3:#F5A524; --g4:#9A82F0; --g5:#5AA2F5; --g6:#F0703A;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:28px 40px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px;margin-bottom:22px}
+.kicker{font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--pinkInk);margin:0 0 6px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,6vw,62px);line-height:.95;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--pink)}
+.sub{margin:10px 0 0;color:var(--muted);max-width:52ch;font-size:16px}
+.counter{display:flex;align-items:baseline;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 18px}
+.counter b{font-family:var(--display);font-weight:800;font-size:46px;line-height:1;font-variant-numeric:tabular-nums;color:var(--pink)}
+.counter span{color:var(--muted);font-size:13px;line-height:1.25;max-width:13ch}
+.counter s{color:var(--muted)}
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.mapbox{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:10px;min-width:0}
+@media (max-width:860px){.mapbox{position:relative;top:0}}
+svg#map{display:block;width:100%;height:auto;max-height:78vh;touch-action:manipulation}
+@media (max-width:860px){svg#map{max-height:70vh}}
+.g{fill:var(--map);stroke:var(--mapEdge);stroke-width:.8;cursor:pointer;transition:fill .15s}
+.g:hover{fill:var(--sel)}
+.g.sel{fill:var(--sel);stroke:var(--pink);stroke-width:1.4}
+.fo path{stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
+.ff path{stroke-width:1.6;stroke-linejoin:round;cursor:pointer}
+.fl{font-family:var(--display);font-weight:800;fill:var(--ink);paint-order:stroke;stroke:var(--halo);stroke-width:3.5px;stroke-linejoin:round;text-anchor:middle;pointer-events:none}
+.fl.act{fill:var(--pinkInk)}
+.maphint{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);padding:6px 6px 2px}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12.5px;padding:5px 9px;border-radius:7px;white-space:nowrap;z-index:5;font-variant-numeric:tabular-nums}
+.panel{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h2{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.06em;text-transform:uppercase;margin:0 0 10px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--pinkSoft);color:var(--ink);border:1px solid transparent;border-radius:999px;padding:4px 6px 4px 12px;font-size:14px;font-weight:600}
+.chip button{border:0;background:transparent;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;border-radius:50%;width:22px;height:22px}
+.chip button:hover{background:var(--surface);color:var(--ink)}
+.empty{color:var(--muted);font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+input[type=text]{flex:1 1 180px;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button{font:inherit}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 14px;font-weight:600;font-size:14px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.big{background:var(--pink);border-color:var(--pink);color:#fff;font-family:var(--display);font-weight:800;font-size:19px;padding:11px 22px;letter-spacing:.01em}
+.btn.big:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent}
+:focus-visible{outline:2.5px solid var(--focus);outline-offset:2px}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets .btn{font-size:13px;padding:6px 11px;border-radius:999px}
+.result .label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pinkInk);margin:0}
+.result .name{font-family:var(--display);font-weight:800;font-size:clamp(30px,4.6vw,46px);line-height:1;letter-spacing:-.02em;margin:6px 0 4px;text-wrap:balance;overflow-wrap:anywhere}
+.result .members{color:var(--muted);margin:0 0 14px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;border-block:1px solid var(--line);padding-block:12px;margin-bottom:14px}
+@media (max-width:480px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.facts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.facts li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14.5px;line-height:1.45}
+.facts li::before{content:"";width:10px;height:10px;margin-top:6px;border-radius:3px;background:var(--pink);transform:rotate(45deg)}
+.punch{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.2;margin:16px 0 0;padding:12px 14px;border-radius:12px;background:var(--pinkSoft);text-wrap:balance}
+.toast{font-size:13px;color:var(--pinkInk);font-weight:600}
+.list{display:flex;flex-direction:column;gap:6px}
+.fitem{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:transparent;color:var(--ink);text-align:left;cursor:pointer;width:100%}
+.fitem.act{border-color:var(--pink)}
+.fitem i{width:12px;height:12px;border-radius:3px;flex:none}
+.fitem b{font-weight:700}
+.fitem span{color:var(--muted);font-size:13px;margin-left:auto;font-variant-numeric:tabular-nums;white-space:nowrap}
+footer{margin-top:26px;color:var(--muted);font-size:12.5px;display:flex;flex-direction:column;gap:6px}
+footer a{color:var(--pinkInk)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes pop{from{transform:scale(.96);opacity:.5}to{transform:none;opacity:1}}
+.result.fresh .name{animation:pop .35s ease-out}
+
+.g.cand{fill:var(--cand);stroke:var(--pink);stroke-width:1;stroke-dasharray:3 2}
+.hint{margin:10px 0 0;font-size:13.5px;color:var(--pinkInk);font-weight:600}
+.hint:empty{display:none}
+.namerow{display:flex;flex-direction:column;gap:6px;margin:0 0 14px}
+.namerow label,#sendform label{font-size:13px;font-weight:600;color:var(--muted)}
+.row.tight{margin-top:0}
+input[type=email],textarea{width:100%;min-width:0;font:inherit;font-size:15px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+textarea{resize:vertical;min-height:96px}
+#sendform{display:flex;flex-direction:column;gap:8px}
+#sendform input[type=text],#sendform input[type=email]{width:100%;flex:none}
+.intro{margin:-4px 0 12px;color:var(--muted);font-size:14px}
+.choice{border:0;margin:0 0 6px;padding:0;display:flex;flex-direction:column;gap:6px}
+.choice legend{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;padding:0}
+.opt{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-size:14.5px;color:var(--ink)!important;font-weight:600!important}
+.opt:has(input:checked){border-color:var(--pink);background:var(--pinkSoft)}
+.opt input,.check input{accent-color:var(--pink);width:18px;height:18px;flex:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two>div{display:flex;flex-direction:column;gap:6px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:500!important;color:var(--ink)!important;font-size:14px!important;line-height:1.4;cursor:pointer}
+.check input{margin-top:1px}
+.note{font-size:12.5px;color:var(--muted);margin:2px 0 0}
+.note a{color:var(--pinkInk)}
+.sendmsg{font-size:13.5px;font-weight:600}
+.sendmsg.err{color:#C2410C}
+.ok{background:var(--pinkSoft);border-radius:12px;padding:14px 16px}
+.ok .name{font-family:var(--display);font-weight:800;font-size:28px;margin:0 0 4px}
+.ok p{margin:0}
+.preview{margin-top:14px;border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.preview .label{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pinkInk);margin:0}
+.preview img{max-width:100%;border:1px solid var(--line);border-radius:10px}
+.preview pre{margin:0;max-height:260px;overflow:auto;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;white-space:pre-wrap;overflow-wrap:anywhere}
+.share{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.sharelabel{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.btn.big.small{font-size:15px;padding:9px 16px}
+.banner{background:var(--pinkSoft);border-radius:12px;padding:12px 16px;margin:0 0 18px;font-weight:600}
+.disc{font-size:12px;color:var(--muted);margin:10px 0 0}
+footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(--pink);margin-top:6px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.optlabel{font-weight:400;color:var(--muted)}
+#sendbtn:disabled{opacity:.45;cursor:not-allowed}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="kicker">NEOS Vorarlberg · Fusion statt Illusion</p>
+      <h1>Der NEOS Gemeinde&shy;<em>fusionierer</em></h1>
+      <p class="sub">96 Gemeinden für 412.809 Menschen sind zu viel. Klick Gemeinden auf der Karte zusammen und schau, was rauskommt.</p>
+    </div>
+    <div class="counter" aria-live="polite"><b id="count">96</b><span>Gemeinden hat dein Vorarlberg <s>statt 96</s></span></div>
+  </header>
+
+  <p id="sharedbanner" class="banner" hidden>Diese Karte hat dir jemand geschickt. Bau jetzt deine eigene Version.</p>
+  <div class="grid">
+    <div class="mapbox">
+      <svg id="map" viewBox="0 0 620 965" role="img" aria-label="Karte der 96 Vorarlberger Gemeinden">
+        <g id="base"></g><g id="fus"></g><g id="labels"></g>
+      </svg>
+      <div class="maphint"><span>Nur Nachbargemeinden lassen sich fusionieren</span><span>Stand 30.06.2026</span></div>
+    </div>
+
+    <div class="panel">
+      <section class="card" aria-labelledby="h-sel">
+        <h2 id="h-sel">Deine Auswahl</h2>
+        <div class="chips" id="chips"></div>
+        <p id="hint" class="hint" aria-live="polite"></p>
+        <div class="row">
+          <input type="text" id="search" list="gemlist" placeholder="Gemeinde suchen, z. B. Lochau" autocomplete="off" aria-label="Gemeinde hinzufügen">
+          <datalist id="gemlist"></datalist>
+        </div>
+        <div class="row">
+          <button class="btn big" id="fuse" disabled>Fusionieren!</button>
+          <button class="btn ghost" id="clear">Auswahl leeren</button>
+          <button class="btn ghost" id="random">Zufallsfusion</button>
+        </div>
+        <div class="row presets" aria-label="Vorschläge">
+          <button class="btn" data-preset="leiblach">Leiblachtal</button>
+          <button class="btn" data-preset="kumma">amKumma</button>
+          <button class="btn" data-preset="hofsteig">Hofsteig</button>
+          <button class="btn" data-preset="montafon">Montafon</button>
+          <button class="btn" data-preset="bw">Bregenzerwald</button>
+          <button class="btn" data-preset="gwt">Großes Walsertal</button>
+          <button class="btn" data-preset="all">Ganz Vorarlberg</button>
+        </div>
+      </section>
+
+      <section class="card result" id="result" aria-live="polite"></section>
+
+      <section class="card" id="listcard" aria-labelledby="h-list">
+        <h2 id="h-list">Deine Fusionen</h2>
+        <div class="list" id="flist"></div>
+        <div class="row"><button class="btn ghost" id="reset">Alles zurücksetzen</button></div>
+      </section>
+
+      <section class="card" id="sendcard" style="display:none" aria-labelledby="h-send" hidden>
+        <h2 id="h-send">Schick uns deine Karte – und mach beim Gewinnspiel mit</h2>
+        <p class="intro">Schick uns dein neues Vorarlberg und sag uns, warum du so fusionieren würdest. Wähl unten mindestens eine Option aus. Die besten Karten stellen wir als „Fusion der Woche“ vor.</p>
+        <form id="sendform" novalidate>
+          <label for="f-msg">Warum würdest du das so machen? *</label>
+          <textarea id="f-msg" rows="4" maxlength="600" required placeholder="Zum Beispiel: Die Grenze merkt man bei uns nur am Ortsschild."></textarea>
+          <div class="two">
+            <div><label for="f-name">Name *</label><input type="text" id="f-name" maxlength="60" autocomplete="name"></div>
+            <div><label for="f-ort">Wohnort (freiwillig)</label><input type="text" id="f-ort" maxlength="40" list="gemlist"></div>
+          </div>
+          <label for="f-mail">E-Mail <span class="optlabel">(für Gewinnspiel und Newsletter nötig)</span></label>
+          <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="Damit wir dich verständigen können, wenn du gewinnst">
+          <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input type="text" id="f-web" tabindex="-1" autocomplete="off"></div>
+          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich nehme am Gewinnspiel teil und bin einverstanden, dass NEOS Vorarlberg dafür meine Angaben, meine Karte und meine Nachricht verarbeitet.</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
+          <label class="check" for="f-pub"><input type="checkbox" id="f-pub"> <span id="t-pub">NEOS darf meine Karte und meine Nachricht mit meinem Vornamen und – falls angegeben – meinem Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“.</span></label>
+          <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich will den NEOS-Newsletter abonnieren, um weitere Infos zu erhalten.</span></label>
+          <p class="note" id="t-ok">Mit dem Absenden willigst du ein, dass NEOS Vorarlberg deine Einsendung (Karte, Nachricht und Angaben) speichert und auswertet. Die Teilnahme am Gewinnspiel hängt nicht davon ab, ob du der Veröffentlichung zustimmst oder den Newsletter abonnierst. Vor der Eintragung in den Newsletter bekommst du von uns eine E-Mail, in der du deine Anmeldung bestätigst (Double-Opt-in) – erst dann wirst du eingetragen. Abmelden geht jederzeit. Deine Einwilligungen kannst du jederzeit per E-Mail an vorarlberg@neos.eu widerrufen. Bis auf eine bestätigte Newsletter-Anmeldung löschen wir alle Daten nach Ende des Gewinnspiels. Für deine Nachricht und selbst vergebene Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. * Pflichtfeld. Bitte wähl mindestens eine der drei Optionen. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
+          <div class="row"><button class="btn big" id="sendbtn" type="submit" disabled>Mein neues Vorarlberg an NEOS senden</button><span id="sendmsg" class="sendmsg" role="status"></span></div>
+        </form>
+        <div id="sendok" class="ok" hidden><p class="name">Danke!</p><p>Dein neues Vorarlberg ist bei uns angekommen und nimmt am Gewinnspiel teil. Vielleicht ist es bald die „Fusion der Woche“.</p></div>
+        <div id="preview" class="preview" hidden></div>
+      </section>
+
+    </div>
+  </div>
+
+  <footer>
+    <span>Ein Spiel von <a href="https://vorarlberg.neos.eu/" target="_blank" rel="noopener">NEOS Vorarlberg</a>. Die Namen sind Spaß, die Zahlen nicht.</span>
+    <span><b>Alle Angaben ohne Gewähr.</b> Die Zahlen beruhen auf der Landesstatistik Vorarlberg (Stichtag 30.06.2026) und eigenen Berechnungen. Abweichungen zu aktuellen oder amtlichen Zahlen sind möglich, Grenzen und Flächen sind vereinfacht dargestellt. Namen, Fun Facts und Vergleiche dienen der Unterhaltung und sind keine Planung oder Empfehlung für konkrete Gemeinden. Für konkrete Vorhaben können sich Gemeinden in Vorarlberg bis zu 100.000 € für die Prozessbegleitung abholen (<a href="https://vorarlberg.at/-/gemeindekooperationen-foerderung" target="_blank" rel="noopener">Förderung des Landes</a>).</span>
+    <span><b>Eigene Inhalte:</b> Selbst eingegebene Gemeindenamen, Nachrichten und andere Texte stammen von den Nutzer*innen. Für abwertende, beleidigende oder sonst unangemessene Inhalte ist allein die Person verantwortlich, die sie erstellt hat; NEOS macht sich solche Inhalte nicht zu eigen und veröffentlicht sie nicht.</span>
+    <span><b>Mit KI erstellt.</b> Der Fusionierer wurde mit Unterstützung von KI gebaut. Die Daten stammen aus dem Web und aus aktuellen Studien und Berichten, unter anderem: <a href="https://vorarlberg.at/-/22_verwaltungszaehlung" target="_blank" rel="noopener">Landesstatistik Vorarlberg, Bevölkerungsstand 30.06.2026</a> · <a href="https://ssas-yearbook.com/articles/10.5334/ssas.131" target="_blank" rel="noopener">Fetz &amp; Derungs (2020): Gemeindefusionen in der Schweiz</a> · <a href="https://www.news.steiermark.at/cms/beitrag/12767550/154271055/" target="_blank" rel="noopener">Land Steiermark: Bilanz der Gemeindestrukturreform</a> · <a href="https://www.gl.ch/public/upload/assets/33745/180708%20fusion%20schw.gemeinden.pdf?fp=2" target="_blank" rel="noopener">Kanton Glarus: Fusionen – Bilanz in Glarus (2018)</a> · <a href="https://vorarlberg.orf.at/stories/3343149" target="_blank" rel="noopener">Landes-Rechnungshof Vorarlberg zu Gemeindefusionen (ORF, 2026)</a> · <a href="https://ris.bka.gv.at/NormDokument.wxe?Abfrage=LrVbg&amp;Gesetzesnummer=20000047&amp;Paragraf=34" target="_blank" rel="noopener">§ 34 Gemeindegesetz Vorarlberg</a>.</span>
+    <span>Einwohner (Hauptwohnsitz), Zweitwohnsitze und Altersgruppen: Landesstatistik Vorarlberg, Stichtag 30.06.2026. Gemeindevertretung nach § 34 Gemeindegesetz, gerechnet mit aktuellen Einwohnerzahlen. Grenzen: Statistik Austria (vereinfacht), Flächen daraus berechnet.</span>
+    <span class="fun">Viel Spaß beim Fusionieren!</span>
+  </footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const G = [{"n":"Alberschwende","b":2,"p":3361,"zw":162,"u15":597,"o60":869,"p16":3272,"a":21.28,"x":277.1,"y":179.1,"d":"M249.9,208.4L258.4,214.8L283.7,203.6L317.2,199.6L312.4,187.6L296.3,175.7L284.8,161.3L272.6,143.3L270.1,140.8L257.7,162.4L252.5,182.4L240.2,196.7Z","nb":[6,13,18,19,22,45,46,50,76]},{"n":"Altach","b":4,"p":7154,"zw":437,"u15":1118,"o60":1849,"p16":6548,"a":4.87,"x":103.6,"y":308.2,"d":"M129.4,325.5L110.9,295.7L85.5,302L94.3,319.9L109.9,321.5L121.7,314.4Z","nb":[32,35,58]},{"n":"Andelsbuch","b":2,"p":2654,"zw":133,"u15":516,"o60":575,"p16":2474,"a":19.45,"x":330.5,"y":243.5,"d":"M307.8,271.6L308.5,266.9L347.8,260L388.5,263.9L359.5,249.6L358.8,237.6L343.2,229.8L334.9,234.4L324,223.8L307,227.8L308.2,236.6L296.3,249.3L287.6,249.4L280.7,266.3L291.9,272.8Z","nb":[5,22,64,76]},{"n":"Au","b":2,"p":1945,"zw":179,"u15":371,"o60":482,"p16":1735,"a":46.28,"x":367.3,"y":373.4,"d":"M430.6,321.2L411.7,321.1L392.5,330.8L379.7,327.7L347.5,340.6L345,358.7L312.7,364.2L348.9,393.7L356.7,386.7L362.9,405.5L384.3,420.1L404.1,418.9L411.9,412.9L402.7,398.6L412.7,376.5L408.4,370.3L416.8,341.6L430.4,322Z","nb":[5,7,17,25,56,70,72,79]},{"n":"Bartholomäberg","b":1,"p":2405,"zw":321,"u15":382,"o60":708,"p16":2366,"a":27.28,"x":337.5,"y":620.1,"d":"M312.2,648L346.9,649.7L367.9,636.8L380.8,613.2L374.5,602.1L354.2,599.7L337,592.5L324.7,597.6L318.2,598.6L303.8,610.6L293.8,627.1Z","nb":[9,16,39,73,78,80,89]},{"n":"Bezau","b":2,"p":2087,"zw":138,"u15":335,"o60":578,"p16":2026,"a":35.09,"x":433.6,"y":298.4,"d":"M388.5,263.9L347.8,260L308.5,266.9L307.8,271.6L317.5,291L329.5,283.3L365.4,287.5L400.9,270.8L401.4,282L421.4,305.7L430.6,321.2L430.4,322L446.3,329.9L451.1,340.5L468.1,339.7L486.9,335.2L468.8,321.7L464.5,308.8L455,308.1L449.6,290.3L433.2,273.1L418.7,275.1L409.6,262.4Z","nb":[2,3,7,22,57,64,72]},{"n":"Bildstein","b":2,"p":842,"zw":100,"u15":150,"o60":215,"p16":725,"a":9.17,"x":229.6,"y":178.2,"d":"M257.7,162.4L253,167.3L231.2,163.5L205.4,173.9L205.6,183.2L224,186.6L220.8,200L240.2,196.7L252.5,182.4Z","nb":[0,13,19,75,93]},{"n":"Bizau","b":2,"p":1107,"zw":76,"u15":192,"o60":289,"p16":1079,"a":19.16,"x":370.4,"y":295.9,"d":"M430.6,321.2L421.4,305.7L401.4,282L400.9,270.8L365.4,287.5L329.5,283.3L325.8,308.4L345.3,312.1L372.4,304.4L388.9,310.2L410.2,305.6L411.7,321.1Z","nb":[3,5,64,70]},{"n":"Blons","b":1,"p":364,"zw":15,"u15":73,"o60":74,"p16":354,"a":14.72,"x":276.5,"y":452.0,"d":"M283.3,420.3L281.1,419.9L265.6,429L261.9,438.7L257.6,464L260.4,485.6L296.4,475.3L296.8,457.1L290,446.9L291.6,431.4Z","nb":[17,25,47,62,79,82]},{"n":"Bludenz","b":1,"p":15020,"zw":1373,"u15":2177,"o60":4255,"p16":14268,"a":29.39,"x":293.2,"y":570.5,"d":"M324.7,597.6L324.4,576.6L338.8,560.1L343,543L321.1,538.7L307.2,546.5L294.2,543.1L291.5,533.5L268.5,538.4L240.7,556.1L252.8,564.9L265.9,583.7L272.4,585.3L294.1,576.1L299.6,587.4L310.1,596L318.2,598.6Z","nb":[4,14,39,52,61,62,80,83]},{"n":"Bludesch","b":1,"p":2585,"zw":140,"u15":419,"o60":612,"p16":2359,"a":8.47,"x":184.6,"y":519.0,"d":"M200.2,526.2L200.3,510.1L192.7,493.8L174.7,496.6L160.7,511.7L184.6,532.9L196.6,535.2Z","nb":[53,60,69,71,86]},{"n":"Brand","b":1,"p":730,"zw":524,"u15":114,"o60":212,"p16":707,"a":40.68,"x":172.5,"y":646.1,"d":"M208.6,603.8L185.2,601.4L180.6,616L133.8,617.7L142.1,630.9L133.5,649.5L138.2,664.1L134.6,678.5L151.7,689.8L160.7,689.3L200.5,676L210.9,642.6L211.5,608.6Z","nb":[14,15,60,89]},{"n":"Bregenz","b":2,"p":29274,"zw":2570,"u15":4125,"o60":8468,"p16":29587,"a":28.96,"x":175.8,"y":122.3,"d":"M184.6,147.6L204,146.1L219.4,139.6L229.2,155L245.2,140.5L233.4,127.3L241.5,113.6L217.5,131.2L198.1,117.2L197.9,103.3L186.3,91.6L181.1,87.8L126.5,101.1L168.9,146Z","nb":[13,33,38,40,45,48,51]},{"n":"Buch","b":2,"p":595,"zw":62,"u15":101,"o60":166,"p16":601,"a":6.16,"x":251.5,"y":147.9,"d":"M270.1,140.8L260.5,135.4L245.2,140.5L229.2,155L228.9,155.1L231.2,163.5L253,167.3L257.7,162.4Z","nb":[0,6,12,40,45,93]},{"n":"Bürs","b":1,"p":3385,"zw":266,"u15":513,"o60":957,"p16":3219,"a":24.19,"x":236.0,"y":596.6,"d":"M265.9,583.7L252.8,564.9L240.7,556.1L222.7,555.2L227.6,564.5L221.9,589.4L208.6,603.8L211.5,608.6L210.9,642.6L237.2,639.6L254.3,620.3L251.5,611.6L261.8,582.8Z","nb":[9,11,15,52,61,89]},{"n":"Bürserberg","b":1,"p":609,"zw":239,"u15":90,"o60":180,"p16":535,"a":13.37,"x":205.6,"y":576.0,"d":"M222.7,555.2L197,555L180.5,587.4L185.2,601.4L208.6,603.8L221.9,589.4L227.6,564.5Z","nb":[11,14,60,61]},{"n":"Dalaas","b":1,"p":1624,"zw":382,"u15":256,"o60":496,"p16":1601,"a":93.86,"x":445.8,"y":554.9,"d":"M526.7,561.8L516,549L500.3,521.4L497.9,509.1L470.6,506L446.6,510.8L437.7,493.8L422.2,496.9L419,515.7L394.3,522.9L384,535.3L367.2,543L373.8,566.5L389,574.5L387.2,594.9L374.5,602.1L380.8,613.2L431.6,627.4L453.9,615.7L465.8,620.1L455.7,592.4L487.9,560.9L510.6,567.1Z","nb":[4,39,42,49,62,78,79]},{"n":"Damüls","b":2,"p":332,"zw":121,"u15":43,"o60":93,"p16":302,"a":20.8,"x":311.7,"y":391.6,"d":"M312.7,364.2L298.8,362.7L277.4,377L280,389.5L265.3,399.7L264.9,413.9L281.1,419.9L283.3,420.3L285.7,410.7L319.4,407.5L348.9,393.7Z","nb":[3,8,19,25,47,56]},{"n":"Doren","b":2,"p":1052,"zw":89,"u15":176,"o60":296,"p16":1036,"a":13.79,"x":302.3,"y":139.4,"d":"M339,126.9L313.9,122.6L293,115.2L273.7,135.6L272.6,143.3L284.8,161.3L304.9,152.9L339.9,135.2Z","nb":[0,44,45,46,85]},{"n":"Dornbirn","b":3,"p":52342,"zw":2495,"u15":7949,"o60":13581,"p16":48547,"a":121.88,"x":240.1,"y":295.1,"d":"M277.4,377L261.7,374.6L253.4,367.1L253.2,331.7L260,312L276.4,304.7L271.4,282L250.6,261.8L239.8,235L249.9,208.4L240.2,196.7L220.8,200L198,207.4L184.1,199L164.2,193L152.3,193.9L147.1,240.6L150.7,263.7L164.3,272.8L190.6,278.7L206.6,287.2L205,303L177.9,311.3L173.2,323.4L179.6,346.3L195.4,367.8L205.1,373.1L219.8,371.5L234.8,390.6L256.7,392.8L265.3,399.7L280,389.5Z","nb":[0,6,17,27,35,47,48,54,56,64,75,76,90,93,94]},{"n":"Düns","b":4,"p":436,"zw":27,"u15":87,"o60":103,"p16":414,"a":3.35,"x":160.7,"y":466.6,"d":"M180.4,476.7L159.4,458.8L146.4,474.4L161.8,483.8Z","nb":[21,66,68,71]},{"n":"Dünserberg","b":4,"p":162,"zw":10,"u15":29,"o60":49,"p16":152,"a":4.89,"x":182.5,"y":467.7,"d":"M194.2,457.4L169.6,450.8L161,456.5L159.4,458.8L180.4,476.7L195.7,477.6Z","nb":[20,47,68,71,95]},{"n":"Egg","b":2,"p":3808,"zw":318,"u15":688,"o60":972,"p16":3524,"a":65.31,"x":434.2,"y":263.2,"d":"M412,212.1L400.9,211.5L362.1,191.3L335.5,203.3L317.2,199.6L283.7,203.6L307,227.8L324,223.8L334.9,234.4L343.2,229.8L358.8,237.6L359.5,249.6L388.5,263.9L409.6,262.4L418.7,275.1L433.2,273.1L449.6,290.3L455,308.1L464.5,308.8L468.8,321.7L486.9,335.2L508.1,319.9L493.5,311.6L491.6,305.2L466.3,284.8L459.2,272.8L457.3,250.4L444.7,254.9L425.7,221.2Z","nb":[0,2,5,34,50,57,76,77]},{"n":"Eichenberg","b":2,"p":412,"zw":42,"u15":81,"o60":112,"p16":405,"a":11.35,"x":233.4,"y":85.3,"d":"M217.5,60.4L211.9,81.3L229.2,109.7L241.8,112L249.8,89.2L258.4,76.3L251.5,79.1L243.5,64.1Z","nb":[38,45,51,59]},{"n":"Feldkirch","b":4,"p":36711,"zw":3166,"u15":5391,"o60":9452,"p16":32907,"a":35.14,"x":58.4,"y":434.6,"d":"M55.9,499.5L64.2,484.7L60.3,466.6L71.4,466.4L76.6,454.2L92.6,440.8L89.5,421.4L48.7,401.8L49.4,388.5L34.2,379.9L23.3,404.8L10,416.9L17.5,428.4L34.4,442.1L41.1,454L30.3,471.8L42.7,481Z","nb":[26,31,55,63]},{"n":"Fontanella","b":1,"p":464,"zw":43,"u15":92,"o60":101,"p16":456,"a":30.98,"x":331.6,"y":423.8,"d":"M384.3,420.1L362.9,405.5L356.7,386.7L348.9,393.7L319.4,407.5L285.7,410.7L283.3,420.3L291.6,431.4L290,446.9L304.1,460.6L330.7,449L362.3,443.5L370.4,427.4Z","nb":[3,8,17,79]},{"n":"Frastanz","b":4,"p":6734,"zw":504,"u15":1026,"o60":1807,"p16":6453,"a":29.56,"x":73.6,"y":508.1,"d":"M86.3,565.7L86.4,542.3L101.3,491.6L117.1,485L102,472.6L90.2,473.4L71.4,466.4L60.3,466.6L64.2,484.7L55.9,499.5L45.6,516.7L46,535.6L69.7,556.9L71.2,565.7Z","nb":[24,31,60,68]},{"n":"Fraxern","b":4,"p":781,"zw":58,"u15":144,"o60":194,"p16":686,"a":9.89,"x":162.7,"y":339.7,"d":"M179.6,346.3L173.2,323.4L166,333.1L128.9,346.3L121.8,360.2L130.1,368.7L145.2,367.8Z","nb":[19,32,35,41,90,92]},{"n":"Fußach","b":2,"p":4076,"zw":261,"u15":614,"o60":1080,"p16":3841,"a":12.26,"x":112.1,"y":144.2,"d":"M135.6,169.4L103.3,107.1L83,112.3L90.6,133.8L100.6,136.7L102.7,151.7L112.3,159.8L121.9,184.7L132.2,180.8L138.2,176.4Z","nb":[33,37,48,54]},{"n":"Gaißau","b":2,"p":1899,"zw":111,"u15":317,"o60":526,"p16":1800,"a":5.09,"x":55.6,"y":148.8,"d":"M75,167.1L57.2,144L50.8,120.6L36.4,124.2L36.4,134.2L54.8,153.6L62.8,172.5Z","nb":[37]},{"n":"Gaschurn","b":1,"p":1420,"zw":606,"u15":187,"o60":493,"p16":1480,"a":175.96,"x":450.1,"y":833.5,"d":"M544.4,775.7L539.8,748.6L520,739L522.9,718.6L508.5,712.5L475.8,715.4L467.9,724.1L452.6,736.6L433.1,739.1L417.8,751.2L417,762L403.6,773.4L412.1,787.4L391.7,818.2L389.7,834.1L396.6,856.5L389.9,860.5L393.7,872.7L413.7,881.9L423.7,878.4L453.2,910.6L459.3,929.5L482.9,928.9L498,954.3L513.1,944.9L531.8,941.7L528.3,911.4L508.3,898.8L501.1,886.7L501.2,869.9L492.1,846.2L511.2,833L523.3,811.3L525.2,789.9L531.6,776.1Z","nb":[78,81]},{"n":"Göfis","b":4,"p":3347,"zw":263,"u15":481,"o60":971,"p16":3290,"a":9.64,"x":101.1,"y":447.5,"d":"M102,472.6L118.4,456.4L116.7,437.5L106.6,432.3L92.6,440.8L76.6,454.2L71.4,466.4L90.2,473.4Z","nb":[24,26,63,68]},{"n":"Götzis","b":4,"p":12343,"zw":607,"u15":1909,"o60":3213,"p16":11284,"a":14.26,"x":124.7,"y":334.3,"d":"M129.4,325.5L121.7,314.4L109.9,321.5L94.3,319.9L83.9,322.1L86.8,335.4L101.8,352.7L117,354.3L128.9,346.3L166,333.1L152.8,322Z","nb":[1,27,35,41,43,58]},{"n":"Hard","b":2,"p":13848,"zw":976,"u15":2189,"o60":3811,"p16":13312,"a":17.12,"x":131.9,"y":126.5,"d":"M135.6,169.4L147.2,172.9L153.1,157.8L168.9,146L126.5,101.1L103.3,107.1Z","nb":[12,28,48]},{"n":"Hittisau","b":2,"p":2079,"zw":126,"u15":396,"o60":524,"p16":2007,"a":46.91,"x":412.0,"y":182.3,"d":"M408.2,151.2L394.1,148L363.6,154.5L358.5,148.7L349.4,162.2L353.7,176.5L362.1,191.3L400.9,211.5L412,212.1L419.4,201.8L453.3,194.7L470.6,199.3L478.1,214.8L496.9,216.9L489.5,205.5L484.7,179.5L469,185.2L440.4,143.5L417.3,152.7Z","nb":[22,44,46,50,65,77]},{"n":"Hohenems","b":3,"p":17723,"zw":860,"u15":2809,"o60":4313,"p16":16079,"a":30.28,"x":159.3,"y":299.4,"d":"M166,333.1L173.2,323.4L177.9,311.3L205,303L206.6,287.2L190.6,278.7L164.3,272.8L150.7,263.7L131.3,265.9L131.2,278.2L121.9,291.2L110.9,295.7L129.4,325.5L152.8,322Z","nb":[1,19,27,32,54]},{"n":"Hohenweiler","b":2,"p":1425,"zw":64,"u15":218,"o60":401,"p16":1283,"a":8.51,"x":222.8,"y":25.2,"d":"M256,20.3L240.8,10L218.3,13.1L201.9,30L201.1,39.7L218.6,48.7L228.5,45.2L241.9,19.6Z","nb":[38,59]},{"n":"Höchst","b":2,"p":8629,"zw":487,"u15":1342,"o60":2336,"p16":7864,"a":21.84,"x":81.2,"y":147.8,"d":"M132.2,180.8L121.9,184.7L112.3,159.8L102.7,151.7L100.6,136.7L90.6,133.8L83,112.3L50.8,120.6L57.2,144L75,167.1L87.6,183L119.3,190.8Z","nb":[28,29,54]},{"n":"Hörbranz","b":2,"p":6686,"zw":569,"u15":1025,"o60":1918,"p16":6344,"a":8.53,"x":201.5,"y":65.8,"d":"M186.3,91.6L199.9,77.9L211.9,81.3L217.5,60.4L218.6,48.7L201.1,39.7L183.9,71.2L181.1,87.8Z","nb":[12,23,36,51,59]},{"n":"Innerbraz","b":1,"p":1057,"zw":103,"u15":166,"o60":337,"p16":968,"a":20.86,"x":355.5,"y":570.5,"d":"M367.2,543L343,543L338.8,560.1L324.4,576.6L324.7,597.6L337,592.5L354.2,599.7L374.5,602.1L387.2,594.9L389,574.5L373.8,566.5Z","nb":[4,9,16,62]},{"n":"Kennelbach","b":2,"p":1852,"zw":142,"u15":284,"o60":565,"p16":1913,"a":3.71,"x":209.0,"y":151.5,"d":"M229.2,155L219.4,139.6L204,146.1L184.6,147.6L184.5,148.1L209.5,161.1L228.9,155.1Z","nb":[12,13,48,93]},{"n":"Klaus","b":4,"p":3104,"zw":248,"u15":456,"o60":831,"p16":3127,"a":4.7,"x":104.5,"y":364.7,"d":"M86.3,373.8L111.2,375.1L121.8,360.2L128.9,346.3L117,354.3L101.8,352.7L86,369.2Z","nb":[27,32,43,67,92]},{"n":"Klösterle","b":1,"p":645,"zw":309,"u15":85,"o60":210,"p16":677,"a":62.09,"x":508.4,"y":606.5,"d":"M526.7,561.8L510.6,567.1L487.9,560.9L455.7,592.4L465.8,620.1L479,619L477.6,657.1L504.7,654.5L522.1,657.9L531.7,634.1L566.9,594L584.3,591.6L581.4,577.1L597.1,568.4L589.6,558.2L572.1,561.5L558.5,570.1L546.2,565.5L534.7,569Z","nb":[16,49,78]},{"n":"Koblach","b":4,"p":5060,"zw":208,"u15":837,"o60":1269,"p16":4454,"a":10.19,"x":78.5,"y":344.0,"d":"M101.8,352.7L86.8,335.4L83.9,322.1L65.7,333.2L58.9,358.2L66.8,371.2L80.4,372.4L86,369.2Z","nb":[32,41,55,58,63,67]},{"n":"Krumbach","b":2,"p":1111,"zw":39,"u15":172,"o60":321,"p16":990,"a":8.65,"x":342.0,"y":141.9,"d":"M358.5,148.7L356,131.1L340.8,126L339,126.9L339.9,135.2L304.9,152.9L315.2,160.7L349.4,162.2Z","nb":[18,34,46,65,85]},{"n":"Langen bei Bregenz","b":2,"p":1496,"zw":102,"u15":234,"o60":477,"p16":1393,"a":22.32,"x":271.5,"y":103.2,"d":"M264,74.3L258.4,76.3L249.8,89.2L241.8,112L241.5,113.6L233.4,127.3L245.2,140.5L260.5,135.4L270.1,140.8L272.6,143.3L273.7,135.6L293,115.2L302,94.3L284,79.7Z","nb":[0,12,13,18,23,51,59,85]},{"n":"Langenegg","b":2,"p":1193,"zw":92,"u15":214,"o60":292,"p16":1147,"a":10.74,"x":321.2,"y":169.0,"d":"M349.4,162.2L315.2,160.7L304.9,152.9L284.8,161.3L296.3,175.7L312.4,187.6L353.7,176.5Z","nb":[0,18,34,44,50]},{"n":"Laterns","b":4,"p":700,"zw":60,"u15":113,"o60":211,"p16":661,"a":45.14,"x":211.6,"y":416.9,"d":"M265.3,399.7L256.7,392.8L234.8,390.6L219.8,371.5L207.6,396L197.6,404.9L169.8,412.6L156.1,411.2L142.7,424.2L143.1,430.2L169.6,450.8L194.2,457.4L201.9,459L209.2,462.5L223.4,454.1L236.7,426.7L251.3,427.4L261.9,438.7L265.6,429L281.1,419.9L264.9,413.9Z","nb":[8,17,19,21,63,71,82,87,90,94,95]},{"n":"Lauterach","b":2,"p":10686,"zw":570,"u15":1693,"o60":2680,"p16":10166,"a":11.55,"x":166.9,"y":171.1,"d":"M168.9,146L153.1,157.8L147.2,172.9L135.6,169.4L138.2,176.4L152.3,193.9L164.2,193L186.1,173.3L184.5,148.1L184.6,147.6Z","nb":[12,19,28,33,40,54,93]},{"n":"Lech","b":1,"p":1558,"zw":3219,"u15":176,"o60":463,"p16":1508,"a":89.79,"x":514.2,"y":502.9,"d":"M576.6,459.4L573.8,452L533.5,446L525.4,440.6L513.8,454.5L499.7,456.7L494.3,472L463.3,468.3L450.1,471.6L437.7,493.8L446.6,510.8L470.6,506L497.9,509.1L500.3,521.4L516,549L526.7,561.8L534.7,569L546.2,565.5L558.5,570.1L572.1,561.5L589.6,558.2L588.2,541L578.4,527.9L575.9,512.2L589.3,499.8L589.4,474.8Z","nb":[16,42,74,79,91]},{"n":"Lingenau","b":2,"p":1606,"zw":69,"u15":323,"o60":397,"p16":1436,"a":6.32,"x":337.1,"y":189.5,"d":"M362.1,191.3L353.7,176.5L312.4,187.6L317.2,199.6L335.5,203.3Z","nb":[0,22,34,46]},{"n":"Lochau","b":2,"p":6762,"zw":491,"u15":935,"o60":2289,"p16":5772,"a":10.85,"x":212.6,"y":106.5,"d":"M186.3,91.6L197.9,103.3L198.1,117.2L217.5,131.2L241.5,113.6L241.8,112L229.2,109.7L211.9,81.3L199.9,77.9Z","nb":[12,23,38,45]},{"n":"Lorüns","b":1,"p":315,"zw":33,"u15":50,"o60":83,"p16":279,"a":8.74,"x":276.5,"y":601.5,"d":"M265.9,583.7L261.8,582.8L251.5,611.6L254.3,620.3L262,613.1L285.6,606.9L310.1,596L299.6,587.4L272.4,585.3Z","nb":[9,14,80,83,89]},{"n":"Ludesch","b":1,"p":3776,"zw":259,"u15":659,"o60":929,"p16":3443,"a":10.8,"x":233.2,"y":515.3,"d":"M202.1,536L216.9,537.8L223.2,530.2L251.5,519.3L258.8,511.4L246.4,504.5L253.3,488.7L243.1,489.9L221.6,505.1L200.2,526.2L196.6,535.2Z","nb":[10,60,61,62,82,86,87]},{"n":"Lustenau","b":3,"p":24702,"zw":1042,"u15":4037,"o60":6214,"p16":22520,"a":22.78,"x":129.6,"y":223.3,"d":"M150.7,263.7L147.1,240.6L152.3,193.9L138.2,176.4L132.2,180.8L119.3,190.8L108,206.1L112.9,244L118.7,256.8L131.3,265.9Z","nb":[19,28,35,37,48]},{"n":"Meiningen","b":4,"p":2571,"zw":103,"u15":466,"o60":604,"p16":2198,"a":4.91,"x":51.8,"y":384.2,"d":"M66.8,371.2L58.9,358.2L34.2,379.9L49.4,388.5L48.7,401.8L59.5,390Z","nb":[24,43,63]},{"n":"Mellau","b":2,"p":1330,"zw":151,"u15":221,"o60":365,"p16":1316,"a":40.1,"x":294.0,"y":335.3,"d":"M322,307.9L310.4,308.2L301.9,297.3L276.4,304.7L260,312L253.2,331.7L253.4,367.1L261.7,374.6L277.4,377L298.8,362.7L312.7,364.2L345,358.7L347.5,340.6L336.4,338.8Z","nb":[3,17,19,64,70]},{"n":"Mittelberg","b":2,"p":5030,"zw":1400,"u15":545,"o60":1537,"p16":4870,"a":95.75,"x":525.1,"y":343.4,"d":"M554.8,406.3L563,385L579.9,380.9L592.1,366.3L578.1,347L583.4,331.5L610,288L601.5,269L589,278.8L574.3,268.3L552.6,272.8L552.7,290.9L525.8,295.2L510,285.5L493.5,311.6L508.1,319.9L486.9,335.2L468.1,339.7L477.8,352.4L485.2,403L494.8,412.5L509.1,412.8L518.4,399.2L537.1,409.3Z","nb":[5,22,72,74,91]},{"n":"Mäder","b":4,"p":4272,"zw":185,"u15":730,"o60":1037,"p16":3841,"a":2.61,"x":82.9,"y":317.6,"d":"M94.3,319.9L85.5,302L73.7,315.2L65.7,333.2L83.9,322.1Z","nb":[1,32,43]},{"n":"Möggers","b":2,"p":562,"zw":51,"u15":105,"o60":145,"p16":519,"a":11.14,"x":239.5,"y":50.9,"d":"M256,20.3L241.9,19.6L228.5,45.2L218.6,48.7L217.5,60.4L243.5,64.1L251.5,79.1L258.4,76.3L264,74.3L252.3,70.5L260.9,53.2Z","nb":[23,36,38,45]},{"n":"Nenzing","b":1,"p":6537,"zw":532,"u15":998,"o60":1768,"p16":6282,"a":113.14,"x":136.1,"y":594.4,"d":"M196.6,535.2L184.6,532.9L160.7,511.7L136.5,504.9L128,498L117.1,485L101.3,491.6L86.4,542.3L86.3,565.7L90.5,605.9L87.5,619.5L98.1,628.9L96.9,651.3L88.8,652.1L74.8,679.3L83.5,688.3L99.9,690.7L107.1,680.6L134.6,678.5L138.2,664.1L133.5,649.5L142.1,630.9L133.8,617.7L180.6,616L185.2,601.4L180.5,587.4L197,555L202.1,536Z","nb":[10,11,15,26,53,61,68,69]},{"n":"Nüziders","b":1,"p":4980,"zw":321,"u15":707,"o60":1499,"p16":4921,"a":22.67,"x":252.5,"y":534.8,"d":"M240.7,556.1L268.5,538.4L291.5,533.5L294.2,543.1L307.2,546.5L321.1,538.7L309.4,531.3L300,515.2L258.8,511.4L251.5,519.3L223.2,530.2L216.9,537.8L202.1,536L197,555L222.7,555.2Z","nb":[9,14,15,53,60,62]},{"n":"Raggal","b":1,"p":904,"zw":39,"u15":155,"o60":238,"p16":865,"a":41.36,"x":312.6,"y":507.9,"d":"M394.3,522.9L376,512L359.5,492.1L311.4,493.4L296.4,475.3L260.4,485.6L253.3,488.7L246.4,504.5L258.8,511.4L300,515.2L309.4,531.3L321.1,538.7L343,543L367.2,543L384,535.3Z","nb":[8,9,16,39,53,61,79,82]},{"n":"Rankweil","b":4,"p":12197,"zw":720,"u15":1754,"o60":3502,"p16":11815,"a":21.51,"x":104.9,"y":417.4,"d":"M142.7,424.2L120.1,413.5L112.1,403.2L86.9,383.4L80.4,372.4L66.8,371.2L59.5,390L48.7,401.8L89.5,421.4L92.6,440.8L106.6,432.3L116.7,437.5L118.4,456.4L122.6,450.6L128.4,423L143.1,430.2Z","nb":[24,31,43,47,55,67,68,84,94,95]},{"n":"Reuthe","b":2,"p":676,"zw":61,"u15":112,"o60":153,"p16":664,"a":10.78,"x":294.1,"y":287.1,"d":"M307.8,271.6L291.9,272.8L271.4,282L276.4,304.7L301.9,297.3L310.4,308.2L322,307.9L325.8,308.4L329.5,283.3L317.5,291Z","nb":[2,5,7,19,56,70,76]},{"n":"Riefensberg","b":2,"p":1064,"zw":109,"u15":186,"o60":256,"p16":1063,"a":14.89,"x":373.2,"y":128.6,"d":"M378.9,101.2L340.8,126L356,131.1L358.5,148.7L363.6,154.5L394.1,148L408.2,151.2L392.7,116.8Z","nb":[34,44,85]},{"n":"Röns","b":4,"p":391,"zw":24,"u15":70,"o60":103,"p16":344,"a":0.98,"x":148.6,"y":479.0,"d":"M161.8,483.8L146.4,474.4L140.1,483.5L161.3,486.1Z","nb":[20,68,69,71]},{"n":"Röthis","b":4,"p":2332,"zw":167,"u15":334,"o60":647,"p16":1916,"a":3.6,"x":128.0,"y":382.1,"d":"M145,380.9L126.6,378L107.6,384L86.3,373.8L86,369.2L80.4,372.4L86.9,383.4L100.5,383.3L116.3,393.8L126.5,389.7Z","nb":[41,43,63,84,90,92,94]},{"n":"Satteins","b":4,"p":2767,"zw":195,"u15":450,"o60":822,"p16":2618,"a":12.82,"x":131.3,"y":465.7,"d":"M161,456.5L150.1,443.6L122.6,450.6L118.4,456.4L102,472.6L117.1,485L128,498L140.1,483.5L146.4,474.4L159.4,458.8Z","nb":[20,21,26,31,60,63,66,69,95]},{"n":"Schlins","b":4,"p":2573,"zw":200,"u15":434,"o60":656,"p16":2372,"a":6.51,"x":151.3,"y":497.3,"d":"M161.3,486.1L140.1,483.5L128,498L136.5,504.9L160.7,511.7L174.7,496.6Z","nb":[10,60,66,68,71]},{"n":"Schnepfau","b":2,"p":490,"zw":45,"u15":79,"o60":120,"p16":456,"a":15.71,"x":367.5,"y":324.4,"d":"M411.7,321.1L410.2,305.6L388.9,310.2L372.4,304.4L345.3,312.1L325.8,308.4L322,307.9L336.4,338.8L347.5,340.6L379.7,327.7L392.5,330.8Z","nb":[3,7,56,64]},{"n":"Schnifis","b":4,"p":791,"zw":62,"u15":136,"o60":215,"p16":788,"a":4.86,"x":183.6,"y":477.2,"d":"M201.9,459L194.2,457.4L195.7,477.6L180.4,476.7L161.8,483.8L161.3,486.1L174.7,496.6L192.7,493.8L200,486.7L196.6,474.4Z","nb":[10,20,21,47,66,69,86,87]},{"n":"Schoppernau","b":2,"p":940,"zw":131,"u15":141,"o60":238,"p16":953,"a":48.23,"x":445.3,"y":387.5,"d":"M468.1,339.7L451.1,340.5L446.3,329.9L430.4,322L416.8,341.6L408.4,370.3L412.7,376.5L402.7,398.6L411.9,412.9L425.3,420.2L444.1,439.8L465.4,423.5L464.6,410.6L474.6,402.1L485.2,403L477.8,352.4Z","nb":[3,5,57,74,79]},{"n":"Schruns","b":1,"p":3972,"zw":729,"u15":517,"o60":1339,"p16":3741,"a":17.64,"x":364.4,"y":665.5,"d":"M313.5,649L347.7,672.1L358.2,686.2L361.3,700.8L387,690.4L394.1,679.9L389.3,658.9L375.4,657.6L367.9,636.8L346.9,649.7L312.2,648Z","nb":[4,78,81,88,89]},{"n":"Schröcken","b":2,"p":209,"zw":95,"u15":27,"o60":62,"p16":215,"a":23.63,"x":480.8,"y":433.1,"d":"M485.2,403L474.6,402.1L464.6,410.6L465.4,423.5L444.1,439.8L447.1,446L468.8,447.2L463.3,468.3L494.3,472L499.7,456.7L513.8,454.5L525.4,440.6L512.8,440.6L505.2,426.4L509.1,412.8L494.8,412.5Z","nb":[49,57,72,79,91]},{"n":"Schwarzach","b":2,"p":3893,"zw":282,"u15":576,"o60":1165,"p16":3914,"a":4.17,"x":206.5,"y":196.0,"d":"M220.8,200L224,186.6L205.6,183.2L198.3,193L184.1,199L198,207.4Z","nb":[6,19,93]},{"n":"Schwarzenberg","b":2,"p":1929,"zw":262,"u15":331,"o60":483,"p16":1868,"a":25.35,"x":272.6,"y":242.9,"d":"M283.7,203.6L258.4,214.8L249.9,208.4L239.8,235L250.6,261.8L271.4,282L291.9,272.8L280.7,266.3L287.6,249.4L296.3,249.3L308.2,236.6L307,227.8Z","nb":[0,2,19,22,64]},{"n":"Sibratsgfäll","b":2,"p":480,"zw":45,"u15":110,"o60":123,"p16":401,"a":29.33,"x":455.5,"y":247.9,"d":"M496.9,216.9L478.1,214.8L470.6,199.3L453.3,194.7L419.4,201.8L412,212.1L425.7,221.2L444.7,254.9L457.3,250.4L459.2,272.8L466.3,284.8L491.6,305.2L479,262.7L468.6,245.5L471.2,237L488.3,233.9Z","nb":[22,34]},{"n":"Silbertal","b":1,"p":845,"zw":79,"u15":150,"o60":233,"p16":845,"a":90.24,"x":456.9,"y":667.2,"d":"M465.8,620.1L453.9,615.7L431.6,627.4L380.8,613.2L367.9,636.8L375.4,657.6L389.3,658.9L394.1,679.9L413,703L460,713.3L467.9,724.1L475.8,715.4L508.5,712.5L522.9,718.6L531.1,713.3L541.9,694.2L536.8,678L523,675.4L522.1,657.9L504.7,654.5L477.6,657.1L479,619Z","nb":[4,16,30,42,73,81]},{"n":"Sonntag","b":1,"p":620,"zw":69,"u15":113,"o60":164,"p16":719,"a":80.71,"x":380.5,"y":464.5,"d":"M444.1,439.8L425.3,420.2L411.9,412.9L404.1,418.9L384.3,420.1L370.4,427.4L362.3,443.5L330.7,449L304.1,460.6L290,446.9L296.8,457.1L296.4,475.3L311.4,493.4L359.5,492.1L376,512L394.3,522.9L419,515.7L422.2,496.9L437.7,493.8L450.1,471.6L463.3,468.3L468.8,447.2L447.1,446Z","nb":[3,8,16,25,49,62,72,74]},{"n":"St. Anton im Montafon","b":1,"p":728,"zw":77,"u15":99,"o60":212,"p16":753,"a":3.01,"x":294.6,"y":618.8,"d":"M318.2,598.6L310.1,596L285.6,606.9L293.8,627.1L303.8,610.6Z","nb":[4,9,52,89]},{"n":"St. Gallenkirch","b":1,"p":2235,"zw":603,"u15":309,"o60":739,"p16":2203,"a":126.76,"x":360.7,"y":771.3,"d":"M389.9,860.5L396.6,856.5L389.7,834.1L391.7,818.2L412.1,787.4L403.6,773.4L417,762L417.8,751.2L433.1,739.1L452.6,736.6L467.9,724.1L460,713.3L413,703L394.1,679.9L387,690.4L361.3,700.8L328.1,717.4L319.6,751.6L314.2,754.4L316.9,769.2L302.2,790.3L305.7,809.6L303.6,836.5L334,847.8L343.1,857.6L362.9,865Z","nb":[30,73,78,88]},{"n":"St. Gerold","b":1,"p":398,"zw":33,"u15":66,"o60":95,"p16":413,"a":12.71,"x":242.9,"y":459.1,"d":"M261.9,438.7L251.3,427.4L236.7,426.7L223.4,454.1L236.6,470.7L243.1,489.9L253.3,488.7L260.4,485.6L257.6,464Z","nb":[8,47,53,62,87]},{"n":"Stallehr","b":1,"p":295,"zw":21,"u15":41,"o60":79,"p16":296,"a":1.17,"x":289.8,"y":580.7,"d":"M299.6,587.4L294.1,576.1L272.4,585.3Z","nb":[9,52]},{"n":"Sulz","b":4,"p":2689,"zw":140,"u15":393,"o60":719,"p16":2577,"a":2.15,"x":105.3,"y":391.7,"d":"M126.5,389.7L116.3,393.8L100.5,383.3L86.9,383.4L112.1,403.2Z","nb":[63,67,92,94]},{"n":"Sulzberg","b":2,"p":1858,"zw":180,"u15":322,"o60":549,"p16":1785,"a":22.88,"x":339.7,"y":97.7,"d":"M378.9,101.2L378.8,89.9L358.6,82.1L342.9,92.8L325.4,74.7L306.9,70L302,94.3L293,115.2L313.9,122.6L339,126.9L340.8,126Z","nb":[18,44,45,65]},{"n":"Thüringen","b":1,"p":2315,"zw":114,"u15":365,"o60":677,"p16":2251,"a":5.28,"x":209.1,"y":507.6,"d":"M221.6,505.1L223.3,491.9L200,486.7L192.7,493.8L200.3,510.1L200.2,526.2Z","nb":[10,53,71,87]},{"n":"Thüringerberg","b":1,"p":724,"zw":56,"u15":131,"o60":177,"p16":715,"a":10.4,"x":219.1,"y":480.6,"d":"M243.1,489.9L236.6,470.7L223.4,454.1L209.2,462.5L201.9,459L196.6,474.4L200,486.7L223.3,491.9L221.6,505.1Z","nb":[47,53,71,82,86]},{"n":"Tschagguns","b":1,"p":2229,"zw":632,"u15":330,"o60":714,"p16":2210,"a":56.57,"x":298.6,"y":704.8,"d":"M314.2,754.4L319.6,751.6L328.1,717.4L361.3,700.8L358.2,686.2L347.7,672.1L313.5,649L307,656.2L294.5,654.4L285.7,665.3L270.3,668L255.1,679.6L255.1,699.8L235.2,708.8L232.9,716.2L259.3,730.8L264.9,737.4L283.5,734.8L289.5,726.3L303.5,728.8L301,747.4Z","nb":[73,81,89]},{"n":"Vandans","b":1,"p":2839,"zw":309,"u15":442,"o60":837,"p16":2636,"a":54.51,"x":247.3,"y":660.8,"d":"M312.2,648L293.8,627.1L285.6,606.9L262,613.1L254.3,620.3L237.2,639.6L210.9,642.6L200.5,676L160.7,689.3L161,696.2L192.2,703.9L194.1,709L225.5,707.1L232.9,716.2L235.2,708.8L255.1,699.8L255.1,679.6L270.3,668L285.7,665.3L294.5,654.4L307,656.2L313.5,649Z","nb":[4,11,14,52,73,80,88]},{"n":"Viktorsberg","b":4,"p":436,"zw":38,"u15":74,"o60":125,"p16":410,"a":11.94,"x":175.0,"y":357.0,"d":"M219.8,371.5L205.1,373.1L195.4,367.8L179.6,346.3L145.2,367.8L130.1,368.7L126.6,378L145,380.9L172.2,374.5L189.2,388.4Z","nb":[19,27,47,67,92,94]},{"n":"Warth","b":2,"p":196,"zw":206,"u15":37,"o60":48,"p16":152,"a":21.57,"x":546.7,"y":433.4,"d":"M554.8,406.3L537.1,409.3L518.4,399.2L509.1,412.8L505.2,426.4L512.8,440.6L525.4,440.6L533.5,446L573.8,452L576.6,459.4L597.3,438.2L571.7,428.7L560.2,417.5Z","nb":[49,57,74]},{"n":"Weiler","b":4,"p":2322,"zw":136,"u15":380,"o60":566,"p16":2111,"a":2.93,"x":121.5,"y":371.3,"d":"M130.1,368.7L121.8,360.2L111.2,375.1L86.3,373.8L107.6,384L126.6,378Z","nb":[27,41,67,84,90]},{"n":"Wolfurt","b":2,"p":9063,"zw":472,"u15":1384,"o60":2377,"p16":8415,"a":10.42,"x":196.0,"y":173.6,"d":"M205.6,183.2L205.4,173.9L231.2,163.5L228.9,155.1L209.5,161.1L184.5,148.1L186.1,173.3L164.2,193L184.1,199L198.3,193Z","nb":[6,13,19,40,48,75]},{"n":"Zwischenwasser","b":4,"p":3425,"zw":233,"u15":556,"o60":956,"p16":3199,"a":22.17,"x":159.7,"y":399.6,"d":"M142.7,424.2L156.1,411.2L169.8,412.6L197.6,404.9L207.6,396L219.8,371.5L189.2,388.4L172.2,374.5L145,380.9L126.5,389.7L112.1,403.2L120.1,413.5Z","nb":[19,47,63,67,84,90]},{"n":"Übersaxen","b":4,"p":629,"zw":33,"u15":90,"o60":169,"p16":628,"a":4.94,"x":138.6,"y":436.9,"d":"M143.1,430.2L128.4,423L122.6,450.6L150.1,443.6L161,456.5L169.6,450.8Z","nb":[21,47,63,68]}];
+const N = G.length, TOTAL = G.reduce((s,g)=>s+g.p,0);
+const BEZ = {1:'Bludenz',2:'Bregenz',3:'Dornbirn',4:'Feldkirch'};
+const idx = Object.fromEntries(G.map((g,i)=>[g.n,i]));
+const fmt = n => Math.round(n).toLocaleString('de-AT');
+const fmt1 = n => n.toLocaleString('de-AT',{maximumFractionDigits:1,minimumFractionDigits:1});
+const pct = (a,b) => b ? a/b*100 : 0;
+const STATE = {dens: TOTAL/G.reduce((s,g)=>s+g.a,0), zw: pct(G.reduce((s,g)=>s+g.zw,0),TOTAL), u15: pct(G.reduce((s,g)=>s+g.u15,0),TOTAL), o60: pct(G.reduce((s,g)=>s+g.o60,0),TOTAL), gr: pct(TOTAL-G.reduce((s,g)=>s+g.p16,0),G.reduce((s,g)=>s+g.p16,0))};
+const COLORS = ['--g1','--g2','--g3','--g4','--g5','--g6'];
+const LAKE = new Set(['Bregenz','Hard','Fußach','Gaißau','Höchst','Lochau']);
+
+const REGIONS = [
+  {key:'leiblach', m:['Hörbranz','Lochau','Hohenweiler','Möggers','Eichenberg'], names:['Leiblach-Metropole','Groß-Leiblach','Leiblachstadt']},
+  {key:'kumma', m:['Altach','Götzis','Koblach','Mäder'], names:['amKumma-Stadt','Kummenberg City']},
+  {key:'hofsteig', m:['Bildstein','Buch','Hard','Kennelbach','Lauterach','Schwarzach','Wolfurt'], names:['Hofsteig City','Hofsteigstadt']},
+  {key:'montafon', m:['Bartholomäberg','Gaschurn','Lorüns','St. Anton im Montafon','St. Gallenkirch','Schruns','Silbertal','Stallehr','Tschagguns','Vandans'], names:['Montafon City','Stand Montafon, jetzt in echt','Groß-Montafon']},
+  {key:'bw', m:['Alberschwende','Andelsbuch','Au','Bezau','Bizau','Damüls','Doren','Egg','Hittisau','Krumbach','Langenegg','Lingenau','Mellau','Reuthe','Riefensberg','Schnepfau','Schoppernau','Schröcken','Schwarzenberg','Sibratsgfäll','Sulzberg','Warth'], names:['Wälder-Republik','Käsestadt Bregenzerwald','Groß-Wald']},
+  {key:'gwt', m:['Blons','Fontanella','Raggal','St. Gerold','Sonntag','Thüringerberg'], names:['Walserstadt','Großes Walsertal, jetzt wirklich groß']},
+  {key:'kloster', m:['Dalaas','Innerbraz','Klösterle','Lech'], names:['Klosterstadt am Arlberg','Arlberg-City']},
+  {key:'vorderland', m:['Fraxern','Klaus','Laterns','Meiningen','Rankweil','Röthis','Sulz','Übersaxen','Viktorsberg','Weiler','Zwischenwasser'], names:['Vorderland-Metropole','Vorderstadt']},
+  {key:'walgau', m:['Bludesch','Bürs','Düns','Dünserberg','Frastanz','Göfis','Ludesch','Nenzing','Nüziders','Röns','Satteins','Schlins','Schnifis','Thüringen'], names:['Walgau-Metropole','Walgaustadt']},
+];
+
+/* ---------- Mandate nach § 34 GG ---------- */
+function mandate(p){ for (const [lim,n] of [[500,9],[1000,12],[1500,15],[2000,18],[2500,21],[5000,24],[8000,27],[11000,30],[15000,33]]) if (p<=lim) return n; return 36; }
+
+/* ---------- Namensgenerator ---------- */
+const VOW = 'aeiouäöüy';
+const isV = u => VOW.includes(u[0].toLowerCase());
+const units = s => s.match(/sch|ch|ck|tz|ph|[aeiouäöüy]+|[^aeiouäöüy]/gi) || [s];
+const ONSET = new Set(['bl','br','dr','fl','fr','gl','gr','kl','kr','pl','pr','tr','schl','schn','schw','schr','st']);
+const core = n => n.replace(/^St\. /,'').split(' ')[0];
+function head(s){
+  const u = units(s); let i = u.findIndex(isV); if (i<0) return s;
+  let out = u.slice(0,i+1).join('');
+  if (u[i+1] && !isV(u[i+1])) { out += u[i+1];
+    if ('lnrs'.includes(u[i+1].toLowerCase()) && u[i+2] && !isV(u[i+2])) out += u[i+2]; }
+  return out;
+}
+function tail(s){
+  const u = units(s); let j=-1; u.forEach((x,k)=>{ if (isV(x)) j=k; });
+  if (j<=0) return s.toLowerCase();
+  let st = j; if (!isV(u[j-1])) st = j-1;
+  if (st>=1 && !isV(u[st-1]) && ONSET.has((u[st-1]+u[st]).toLowerCase())) st -= 1;
+  return u.slice(st).join('').toLowerCase();
+}
+function pm(a,b){
+  let h = head(core(a)), t = tail(core(b));
+  if (h.slice(-1).toLowerCase() === t[0]) t = t.slice(1);
+  const w = h + t; return w[0].toUpperCase() + w.slice(1);
+}
+function namePool(members){
+  const names = members.map(i=>G[i].n);
+  const byPop = [...members].sort((x,y)=>G[y].p-G[x].p).map(i=>G[i].n);
+  const A = byPop[0], B = byPop[1], Z = byPop[byPop.length-1];
+  const cA = core(A), cB = core(B);
+  const pop = members.reduce((s,i)=>s+G[i].p,0);
+  const pool = [];
+  const p1 = pm(A,B), p2 = pm(B,A), p3 = members.length>2 ? pm(A,Z) : pm(B,A);
+  const suf = (base, s, hy) => { const b=base.toLowerCase(), x=s.toLowerCase(); if (b.endsWith(x) || b.endsWith(x.slice(0,4))) return null; return hy ? `${base}-${s}` : base + s; };
+  if (members.length === N) return ['Super-Vorarlberg'];
+  if (pop >= TOTAL*0.25) pool.push(`Giga-${cA}`, `Ultra${p1}`, `Hyper-${cA} XXL`, `Gigantopolis ${cA}`, 'Megadingsbums');
+  else if (pop >= TOTAL*0.10) pool.push(`Mega-${cA}`, `Ultra-${cA}`, `Giga${p1}`, `${cA} XXL`, 'Megadingsbums');
+  for (const r of REGIONS){
+    const inR = names.filter(n=>r.m.includes(n)).length;
+    if (inR === names.length && inR >= Math.max(2, Math.ceil(r.m.length*0.75))) pool.push(...r.names);
+  }
+  pool.push(p1, p2);
+  if (members.length === 2) pool.push(`${cA}-${cB}`);
+  if (LAKE.has(A) || names.some(n=>LAKE.has(n))) pool.push(`${p1} am See`, `${cA}-Riviera`);
+  pool.push(suf(cA,'ingen',true), suf(p1,'berg'), suf(p2,'tal'), suf(cA,'Hood',true), suf(cB,'viertel'), suf(p1,'bergen'),
+            `Groß-${cA}`, `Bad ${p2}`, `Neu-${p1}`, `${p3} City`, `Ober${p2.toLowerCase()}`, `Unter${p1.toLowerCase()}`,
+            suf(p2,'hausen'), suf(p1,'dorf'), suf(cB,'heim'), suf(p1,'burg'), suf(cA,'polis'), suf(p2,'ville'),
+            `${cA} Plus`, `${cA} Deluxe`, `Sankt ${p1}`, `${p1} an der Fusion`, `Vereinigtes ${cA}`);
+  if (members.length >= 3){
+    pool.push(names.slice().sort().map(n=>core(n).slice(0,2)).join('').slice(0,18));
+    pool.push(`Vereinigte Gemeinden von ${cA}`);
+  }
+  return [...new Set(pool.filter(Boolean))];
+}
+
+/* ---------- Fakten ---------- */
+function stats(members){
+  const s = {n:members.length, p:0, a:0, zw:0, u15:0, o60:0, p16:0, m:0, bez:new Set()};
+  members.forEach(i=>{ const g=G[i]; s.p+=g.p; s.a+=g.a; s.zw+=g.zw; s.u15+=g.u15; s.o60+=g.o60; s.p16+=g.p16; s.m+=mandate(g.p); s.bez.add(g.b); });
+  s.dens = s.p/s.a; s.newM = mandate(s.p);
+  const set = new Set(members); let parts=0; const seen=new Set();
+  members.forEach(i=>{ if (seen.has(i)) return; parts++; const q=[i]; seen.add(i);
+    while(q.length){ const k=q.pop(); G[k].nb.forEach(j=>{ if (set.has(j)&&!seen.has(j)){seen.add(j);q.push(j);} }); } });
+  s.parts = parts;
+  const others = G.map((g,i)=>i).filter(i=>!set.has(i));
+  s.rank = others.filter(i=>G[i].p > s.p).length + 1;
+  const smaller = others.filter(i=>G[i].p < s.p).sort((x,y)=>G[y].p-G[x].p);
+  s.beats = smaller.length ? G[smaller[0]].n : null;
+  s.maxSingle = Math.max(...members.map(i=>G[i].p));
+  return s;
+}
+const BORDER = [[0, 6, 5.56], [0, 13, 2.6], [0, 18, 2.54], [0, 19, 1.62], [0, 22, 3.35], [0, 45, 0.47], [0, 46, 4.62], [0, 50, 1.45], [0, 76, 4.37], [1, 32, 4.77], [1, 35, 3.66], [1, 58, 2.51], [2, 5, 10.0], [2, 22, 11.6], [2, 64, 1.69], [2, 76, 6.89], [3, 5, 0.15], [3, 7, 2.42], [3, 17, 4.36], [3, 25, 6.23], [3, 56, 5.29], [3, 70, 8.3], [3, 72, 10.22], [3, 79, 2.81], [4, 9, 0.83], [4, 16, 1.37], [4, 39, 4.93], [4, 73, 6.24], [4, 78, 2.99], [4, 80, 4.76], [4, 89, 2.62], [5, 7, 16.46], [5, 22, 17.73], [5, 57, 2.31], [5, 64, 3.35], [5, 72, 4.56], [6, 13, 3.62], [6, 19, 1.98], [6, 75, 4.06], [6, 93, 4.23], [7, 64, 2.46], [7, 70, 9.87], [8, 17, 0.26], [8, 25, 2.76], [8, 47, 2.82], [8, 62, 3.71], [8, 79, 3.29], [8, 82, 5.93], [9, 14, 3.58], [9, 39, 6.09], [9, 52, 2.06], [9, 61, 9.42], [9, 62, 2.2], [9, 80, 0.93], [9, 83, 3.4], [10, 53, 0.93], [10, 60, 4.03], [10, 69, 1.96], [10, 71, 1.9], [10, 86, 8.49], [11, 14, 3.71], [11, 15, 2.45], [11, 60, 11.95], [11, 89, 7.33], [12, 13, 2.06], [12, 33, 5.55], [12, 38, 0.71], [12, 40, 5.7], [12, 45, 3.37], [12, 48, 1.49], [12, 51, 8.79], [13, 40, 0.09], [13, 45, 2.81], [13, 93, 0.84], [14, 15, 5.74], [14, 52, 4.16], [14, 61, 1.79], [14, 89, 5.03], [15, 60, 5.18], [15, 61, 2.45], [16, 39, 7.44], [16, 42, 11.13], [16, 49, 14.67], [16, 62, 3.14], [16, 78, 8.53], [16, 79, 6.21], [17, 19, 2.81], [17, 25, 7.23], [17, 47, 3.55], [17, 56, 3.85], [18, 44, 4.65], [18, 45, 3.7], [18, 46, 2.13], [18, 85, 4.97], [19, 27, 2.59], [19, 35, 11.7], [19, 47, 5.52], [19, 48, 1.24], [19, 54, 6.36], [19, 56, 11.49], [19, 64, 2.67], [19, 75, 4.31], [19, 76, 8.75], [19, 90, 4.99], [19, 93, 2.12], [19, 94, 0.08], [20, 21, 3.75], [20, 66, 1.69], [20, 68, 1.92], [20, 71, 1.98], [21, 47, 4.18], [21, 68, 0.31], [21, 71, 4.0], [21, 95, 1.03], [22, 34, 5.46], [22, 50, 4.76], [22, 57, 4.99], [22, 76, 3.61], [22, 77, 14.64], [23, 38, 3.53], [23, 45, 4.99], [23, 51, 4.71], [23, 59, 5.71], [24, 26, 4.41], [24, 31, 3.33], [24, 55, 4.18], [24, 63, 7.17], [25, 79, 12.15], [26, 31, 3.02], [26, 60, 18.05], [26, 68, 1.83], [27, 32, 4.51], [27, 35, 1.19], [27, 41, 1.65], [27, 90, 5.45], [27, 92, 1.41], [28, 33, 7.89], [28, 37, 11.47], [28, 48, 0.75], [28, 54, 0.73], [29, 37, 5.73], [30, 78, 5.87], [30, 81, 19.13], [31, 63, 5.26], [31, 68, 2.26], [32, 35, 4.01], [32, 41, 3.41], [32, 43, 3.77], [32, 58, 1.06], [33, 48, 5.61], [34, 44, 1.84], [34, 46, 1.83], [34, 50, 2.23], [34, 65, 5.93], [34, 77, 11.43], [35, 54, 1.8], [36, 38, 2.42], [36, 59, 6.53], [37, 54, 1.56], [38, 51, 3.26], [38, 59, 1.27], [39, 62, 2.4], [40, 48, 0.11], [40, 93, 4.49], [41, 43, 2.34], [41, 67, 0.5], [41, 92, 4.52], [42, 49, 6.66], [42, 78, 9.61], [43, 55, 1.58], [43, 58, 2.13], [43, 63, 1.32], [43, 67, 0.78], [44, 46, 4.74], [44, 65, 3.7], [44, 85, 0.24], [45, 51, 0.2], [45, 59, 0.6], [45, 85, 2.58], [46, 50, 4.21], [47, 63, 0.62], [47, 71, 0.83], [47, 82, 7.7], [47, 87, 2.34], [47, 90, 0.07], [47, 94, 10.26], [47, 95, 4.34], [48, 54, 2.22], [48, 93, 6.04], [49, 74, 8.49], [49, 79, 3.88], [49, 91, 6.07], [52, 80, 2.82], [52, 83, 2.89], [52, 89, 3.26], [53, 60, 0.55], [53, 61, 6.2], [53, 62, 3.97], [53, 82, 1.07], [53, 86, 2.82], [53, 87, 2.56], [55, 63, 4.18], [56, 64, 6.06], [56, 70, 4.75], [57, 72, 6.87], [57, 74, 2.66], [57, 91, 5.79], [60, 61, 2.21], [60, 68, 1.57], [60, 69, 3.3], [61, 62, 6.86], [62, 79, 11.84], [62, 82, 0.79], [63, 67, 1.23], [63, 68, 0.7], [63, 84, 3.01], [63, 94, 3.66], [63, 95, 4.11], [64, 70, 0.41], [64, 76, 3.13], [65, 85, 4.89], [66, 68, 1.05], [66, 69, 2.21], [66, 71, 0.27], [67, 84, 4.73], [67, 90, 2.27], [67, 92, 4.33], [67, 94, 2.15], [68, 69, 1.75], [68, 95, 4.76], [69, 71, 1.59], [71, 86, 1.11], [71, 87, 2.84], [72, 74, 6.32], [72, 79, 4.02], [73, 78, 5.85], [73, 81, 4.37], [73, 88, 6.77], [73, 89, 0.21], [74, 79, 4.88], [74, 91, 4.08], [75, 93, 3.18], [78, 81, 9.58], [80, 89, 2.08], [81, 88, 7.59], [82, 87, 3.87], [84, 92, 0.04], [84, 94, 1.9], [86, 87, 4.04], [88, 89, 12.36], [90, 92, 0.99], [90, 94, 8.2]];
+const KMU = 0.089;
+const de1 = n => n.toLocaleString('de-AT',{maximumFractionDigits:1});
+function borderKm(members){ const set=new Set(members); return BORDER.reduce((s,[a,b,l])=> set.has(a)&&set.has(b) ? s+l : s, 0); }
+function spanKm(members){ let d=0; members.forEach(a=>members.forEach(b=>{ const dx=G[a].x-G[b].x, dy=G[a].y-G[b].y; d=Math.max(d, Math.hypot(dx,dy)); })); return d*KMU; }
+function facts(members, nameNow){
+  const s = stats(members), F = [];
+  if (s.n === N){
+    F.push(`${fmt(s.p)} Menschen in einer Gemeinde: mehr als Graz. Vorarlberg wäre auf einen Schlag die zweitgrößte Stadt Österreichs.`);
+    F.push(`${fmt(s.a)} km² Gemeindegebiet – größer als ganz Luxemburg (2.586 km²).`);
+    F.push(`Statt 96 Bürgermeister*innen gibt es genau eine*n. Die Bürgermeisterkonferenz passt in einen Lift.`);
+    F.push(`Gemeindevertretung: statt rund ${fmt(s.m)} Mandaten nur noch ${s.newM}. Mit den frei gewordenen Sesseln könnte man ${fmt(Math.floor((s.m-s.newM)/40))} Blasmusikkapellen besetzen.`);
+    F.push(`${fmt(s.u15)} Kinder unter 15 in einer Gemeinde: Kinderbetreuung aus einem Guss, von Lech bis Lochau.`);
+    F.push(`Rund ${fmt(borderKm(members))} km Gemeindegrenzen verschwinden – mehr als einmal Bregenz–Wien und zurück, Luftlinie.`);
+    return {s, F};
+  }
+  if (s.rank === 1) F.push(`Neue Nummer 1 im Land: größer als ${s.beats || 'alle anderen'}. Dornbirn, bitte zur Seite rücken.`);
+  else F.push(`Wäre Platz ${s.rank} der größten Gemeinden Vorarlbergs${s.beats ? `, knapp vor ${s.beats}` : ''}.`);
+  if (s.p >= 10000 && s.maxSingle < 10000) F.push(`Knackt die 10.000er-Marke. Ab 10.000 Einwohnern gibt es mehr Geld aus dem Finanzausgleich.`);
+  if (s.p > 42000 && s.maxSingle <= 42000) F.push(`Mehr Einwohner als ganz Liechtenstein. Vaduz, wir müssen reden.`);
+  F.push(`${s.n} Bürgermeister-Sessel werden zu einem. ${s.n-1===1?'Ein Sessel geht':`${s.n-1} Sessel gehen`} auf den Flohmarkt.`);
+  const saved = s.m - s.newM;
+  F.push(`Gemeindevertretung: ${s.newM} statt ${s.m} Mandate.${saved >= 40 ? ` Mit den ${saved} frei gewordenen Sesseln ließe sich eine ganze Blasmusikkapelle besetzen.` : saved >= 8 ? ` Die ${saved} frei gewordenen Sessel reichen für ${Math.floor(saved/4)} Jassrunden.` : ''}`);
+  const bk = borderKm(members);
+  if (bk >= 0.5) F.push(`${de1(bk)} km Gemeindegrenze verschwinden. Niemand muss mehr wissen, wo ${G[members[0]].n} aufhört.`);
+  const old = members.reduce((t,i)=>t+G[i].n.replace(/[^A-Za-zÄÖÜäöüß]/g,'').length,0);
+  const neu = (nameNow||'').replace(/[^A-Za-zÄÖÜäöüß]/g,'').length;
+  if (neu && old > neu) F.push(`Spart Farbe beim Ortstafelmalen: ${neu} Buchstaben statt ${old}.`);
+  const d = s.dens;
+  if (s.a > 160) F.push(`${fmt(s.a)} km² – größer als Liechtenstein (160 km²).`);
+  else if (d > STATE.dens*2) F.push(`${fmt(d)} Einwohner pro km²: mehr als doppelt so dicht wie der Landesschnitt (${fmt(STATE.dens)}).`);
+  else if (d < STATE.dens/2) F.push(`Nur ${fmt(d)} Einwohner pro km² auf ${fmt(s.a)} km². Viel Platz, wenig Gemeindeamt.`);
+  else F.push(`${fmt(s.a)} km² Fläche, so groß wie ${fmt(s.a*1e6/7140)} Fußballfelder.`);
+  const sp = spanKm(members);
+  if (s.n >= 3 && sp >= 8) F.push(`Von einem Ende zum anderen rund ${fmt(sp)} km Luftlinie – kürzer als so mancher Weg durch die Bürokratie.`);
+  if (s.u15 >= 100) F.push(`${fmt(s.u15)} Kinder unter 15 in einer Gemeinde: genug, um Kinderbetreuung gemeinsam zu planen – mit längeren Öffnungszeiten und Ferienbetreuung${s.maxSingle < 2000 ? ' statt einer Mini-Gruppe in jedem Ort' : ''}.`);
+  F.push(`Vorbild Steiermark: Seit der Gemeindereform gibt es dort rund 60 % mehr Kinderbetreuungseinrichtungen.`);
+  const zw = pct(s.zw, s.p);
+  if (zw > STATE.zw*2.5) F.push(`Ferienwohnungs-Hotspot: Auf 100 Hauptwohnsitze kommen ${fmt(zw)} Zweitwohnsitze (Land: ${fmt(STATE.zw)}).`);
+  const u = pct(s.u15,s.p), o = pct(s.o60,s.p);
+  if (u > STATE.u15 + 1.5) F.push(`Junge Gemeinde: ${fmt1(u)} % sind unter 15 (Land: ${fmt1(STATE.u15)} %).`);
+  else if (o > STATE.o60 + 3) F.push(`${fmt1(o)} % sind 60 oder älter (Land: ${fmt1(STATE.o60)} %). Eine gemeinsame Verwaltung hält die Dienste im Ort.`);
+  const gr = pct(s.p - s.p16, s.p16);
+  if (gr > STATE.gr + 2) F.push(`Wächst kräftig: +${fmt1(gr)} % Einwohner seit 2016 (Land: +${fmt1(STATE.gr)} %).`);
+  else if (gr < 0) F.push(`Schrumpft: ${fmt1(gr)} % Einwohner seit 2016. Allein wird es nicht leichter.`);
+  if (s.bez.size > 1) F.push(`Bezirksübergreifend: ${[...s.bez].map(b=>BEZ[b]).join(' und ')} müssen sich einigen. Die Bezirkshauptleute sollten schon mal einen Kaffee ausmachen.`);
+  if (F.length < 9) F.push(`${fmt1(pct(s.p,TOTAL))} % aller Vorarlberger*innen leben hier.`);
+  return {s, F};
+}
+const PUNCH = ['Das Dorf bleibt. Die Bürokratie geht.','Fusion statt Konfusion.','Kirchturm ja. Kirchturmdenken nein.','96 sind zu viel.','Weniger Gemeinden. Mehr Gemeinde.','Fusion statt Illusion.','Vom Nachbarn zum Mitbewohner.','Gemeinsam statt gemeindeeinsam.','Zwei Ortstafeln, ein Plan.','Endlich eine Beziehung mit Zukunft.','Wer gemeinsam Müll trennt, kann auch gemeinsam verwalten.','Liebe auf den ersten Gemeinderatsbeschluss.','Wir sparen Sessel, nicht Service.'];
+
+/* ---------- Einstellungen fürs Web-Team ---------- */
+const CONFIG = {
+  mailto: '',   // leer = Einsendungen gehen direkt an submitUrl
+  raffleUrl: '', // Link zu den Teilnahmebedingungen des Gewinnspiels
+  submitUrl: '',   // Adresse des Cloudflare Workers, z. B. https://fusionierer.neosvorarlberg.workers.dev   // Endpunkt, der die Einsendung als JSON per POST annimmt. Leer = Testmodus (zeigt nur an, was gesendet würde).
+  privacyUrl: '',  // Link zur Datenschutzerklärung von NEOS Vorarlberg. Muss vor dem Livegang gesetzt werden.
+  includeImage: true, // Kartenbild (PNG, Base64) mitschicken
+  shareUrl: 'https://neosvorarlberg.github.io/fusionierer/ohne-formular.html'     // Öffentliche Adresse des Fusionierers auf der Homepage, z. B. https://vorarlberg.neos.eu/fusionierer. Leer = aktuelle Seitenadresse.
+};
+
+/* ---------- State ---------- */
+let sel = new Set(), fusions = [], active = null, nextId = 1, colorIx = 0, hintMsg = '';
+const $ = id => document.getElementById(id);
+const NS = 'http://www.w3.org/2000/svg';
+const el = (t,a) => { const e=document.createElementNS(NS,t); for (const k in a) e.setAttribute(k,a[k]); return e; };
+const fusionOf = i => fusions.find(f=>f.m.includes(i));
+const fname = f => f.custom || f.names[f.ni];
+const touches = (set, i) => G[i].nb.some(j=>set.has(j));
+function connected(arr){
+  const set=new Set(arr); if (set.size<2) return true;
+  const seen=new Set([arr[0]]), q=[arr[0]];
+  while(q.length){ const k=q.pop(); G[k].nb.forEach(j=>{ if(set.has(j)&&!seen.has(j)){seen.add(j);q.push(j);} }); }
+  return seen.size===set.size;
+}
+
+/* ---------- Map ---------- */
+const base = $('base'), fus = $('fus'), labels = $('labels'), tip = $('tip');
+const paths = G.map((g,i)=>{ const p = el('path',{d:g.d,class:'g','data-i':i}); base.appendChild(p); return p; });
+function showTip(e,i){ const g=G[i], f=fusionOf(i);
+  tip.textContent = `${g.n} · ${fmt(g.p)} Einw.` + (f ? ` · in ${fname(f)}` : '');
+  tip.hidden=false; const x=Math.min(e.clientX+14, innerWidth-tip.offsetWidth-8); tip.style.left=x+'px'; tip.style.top=(e.clientY+14)+'px'; }
+$('map').addEventListener('pointermove', e=>{ const i=e.target.getAttribute('data-i'); if (i!==null && e.pointerType==='mouse') showTip(e,+i); else tip.hidden=true; });
+$('map').addEventListener('pointerleave', ()=> tip.hidden=true);
+$('map').addEventListener('click', e=>{ const i=e.target.getAttribute('data-i'); if (i===null) return; tip.hidden=true; clickG(+i); });
+
+function addToSel(i){
+  const f = fusionOf(i), add = f ? f.m : [i];
+  if (sel.size && !add.some(j=>touches(sel,j))){
+    hintMsg = `${f ? fname(f) : G[i].n} grenzt nicht an deine Auswahl. Fusionieren geht nur mit Nachbargemeinden – die sind auf der Karte markiert.`;
+    return false;
+  }
+  add.forEach(j=>sel.add(j)); hintMsg=''; return true;
+}
+function clickG(i){
+  const f = fusionOf(i);
+  if (f && sel.size === 0){ active = f.id; hintMsg=''; render(); return; }
+  if (!f && sel.has(i)){ sel.delete(i); hintMsg = connected([...sel]) ? '' : 'Deine Auswahl hängt nicht mehr zusammen. Nimm eine verbindende Gemeinde dazu oder entferne eine.'; render(); return; }
+  addToSel(i); render();
+}
+function drawFusions(){
+  fus.textContent=''; labels.textContent='';
+  fusions.forEach(f=>{
+    const col = `var(${f.c})`;
+    const go = el('g',{class:'fo'}), gf = el('g',{class:'ff'});
+    f.m.forEach(i=>{ go.appendChild(el('path',{d:G[i].d,fill:col})); gf.appendChild(el('path',{d:G[i].d,fill:col,stroke:col,'data-i':i})); });
+    if (sel.size && f.m.some(i=>sel.has(i))) gf.setAttribute('opacity','.55');
+    fus.appendChild(go); fus.appendChild(gf);
+  });
+  fusions.forEach(f=>{
+    const c = labelPos(f);
+    const t = el('text',{x:c.x,y:c.y+c.size/3,class:'fl'+(f.id===active?' act':''),'font-size':c.size.toFixed(1)});
+    t.textContent = fname(f); labels.appendChild(t);
+  });
+}
+function labelPos(f){ let A=0,x=0,y=0; f.m.forEach(i=>{ const g=G[i]; A+=g.a; x+=g.x*g.a; y+=g.y*g.a; }); return {x:x/A, y:y/A, size:Math.max(12, Math.min(26, 7 + Math.sqrt(A)*1.1))}; }
+
+/* ---------- Panel ---------- */
+function render(){
+  const cand = new Set(); if (sel.size) sel.forEach(i=>G[i].nb.forEach(j=>{ if(!sel.has(j)) cand.add(j); }));
+  paths.forEach((p,i)=>{ p.classList.toggle('sel', sel.has(i)); p.classList.toggle('cand', cand.has(i) && !fusionOf(i)); });
+  drawFusions();
+  const chips = $('chips'); chips.textContent='';
+  if (!sel.size){ const s=document.createElement('span'); s.className='empty'; s.textContent='Noch nichts ausgewählt. Tipp auf die Karte oder such eine Gemeinde.'; chips.appendChild(s); }
+  [...sel].sort((a,b)=>G[a].n.localeCompare(G[b].n,'de')).forEach(i=>{
+    const c=document.createElement('span'); c.className='chip'; c.textContent=G[i].n;
+    const b=document.createElement('button'); b.setAttribute('aria-label',G[i].n+' entfernen'); b.textContent='×';
+    b.onclick=()=>{ sel.delete(i); hintMsg = connected([...sel]) ? '' : 'Deine Auswahl hängt nicht mehr zusammen. Nimm eine verbindende Gemeinde dazu oder entferne eine.'; render(); };
+    c.appendChild(b); chips.appendChild(c);
+  });
+  const ok = sel.size >= 2 && connected([...sel]);
+  $('fuse').disabled = !ok;
+  $('fuse').textContent = sel.size>=2 ? `${sel.size} Gemeinden fusionieren!` : 'Fusionieren!';
+  $('hint').textContent = hintMsg || (sel.size===1 ? 'Jetzt eine Nachbargemeinde antippen – die möglichen Partner sind gestrichelt markiert.' : '');
+  const count = N - fusions.reduce((s,f)=>s+f.m.length-1,0);
+  $('count').textContent = count;
+  renderResult(); renderList(); renderSend();
+}
+function renderResult(fresh){
+  const box = $('result'); const f = fusions.find(x=>x.id===active);
+  box.classList.toggle('fresh', !!fresh);
+  if (!f){ box.innerHTML = `<p class="label">Noch keine Fusion</p><p class="name">Such dir Partner.</p><p class="members">Wähl mindestens zwei Nachbargemeinden aus und drück auf Fusionieren.</p>`; return; }
+  const {s, F} = facts(f.m, fname(f));
+  const names = f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de'));
+  box.innerHTML = '';
+  const add = (t,c,txt)=>{ const e=document.createElement(t); if(c) e.className=c; if(txt!==undefined) e.textContent=txt; box.appendChild(e); return e; };
+  add('p','label', f.example ? 'Beispiel-Fusion' : 'Neue Gemeinde');
+  add('p','name', fname(f));
+  add('p','members', names.length > 12 ? `${names.slice(0,12).join(' + ')} + ${names.length-12} weitere` : names.join(' + '));
+  const nr = add('div','namerow');
+  const lab=document.createElement('label'); lab.htmlFor='ownname'; lab.textContent='Eigener Name';
+  const inp=document.createElement('input'); inp.type='text'; inp.id='ownname'; inp.maxLength=40; inp.placeholder='Dein Vorschlag für den neuen Namen'; inp.value=f.custom||'';
+  const ob=document.createElement('button'); ob.className='btn'; ob.textContent='Übernehmen';
+  const apply=()=>{ const v=inp.value.trim().replace(/\s+/g,' '); f.custom = v || null; render(); };
+  ob.onclick=apply; inp.addEventListener('keydown',e=>{ if(e.key==='Enter') apply(); });
+  const wrap=document.createElement('div'); wrap.className='row tight'; wrap.append(inp,ob);
+  const nn=document.createElement('p'); nn.className='disc'; nn.textContent='Für selbst eingegebene Namen ist die Person verantwortlich, die sie eingibt – bitte fair bleiben.';
+  nr.append(lab,wrap,nn);
+  const st = add('div','stats');
+  [[fmt(s.p),'Einwohner'],[fmt(s.a),'km²'],[fmt(s.dens),'Einw. pro km²'],[`${s.n} → 1`,'Gemeindeämter']].forEach(([b,l])=>{ const d=document.createElement('div'); d.className='stat'; const bb=document.createElement('b'); bb.textContent=b; const sp=document.createElement('span'); sp.textContent=l; d.append(bb,sp); st.appendChild(d); });
+  const ul = add('ul','facts'); F.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; ul.appendChild(li); });
+  add('p','disc','Alle Angaben ohne Gewähr – Abweichungen zu aktuellen oder amtlichen Zahlen sind möglich.');
+  add('p','punch', PUNCH[f.id % PUNCH.length]);
+  const row = add('div','row');
+  const b1=document.createElement('button'); b1.className='btn'; b1.textContent='Anderer Name'; b1.onclick=()=>{ f.custom=null; f.ni=(f.ni+1)%f.names.length; render(); };
+  const b4=document.createElement('button'); b4.className='btn'; b4.textContent='Erweitern'; b4.title='Weitere Nachbargemeinden zu dieser Fusion dazunehmen';
+  b4.onclick=()=>{ sel.clear(); f.m.forEach(j=>sel.add(j)); hintMsg='Tipp jetzt eine Nachbargemeinde an und fusionier neu.'; render(); };
+  const b3=document.createElement('button'); b3.className='btn ghost'; b3.textContent='Fusion auflösen'; b3.onclick=()=>{ fusions=fusions.filter(x=>x!==f); active=fusions.length?fusions[fusions.length-1].id:null; render(); };
+  const b2=document.createElement('button'); b2.className='btn'; b2.textContent='Text kopieren';
+  const toast=document.createElement('span'); toast.className='toast';
+  b2.onclick=()=>{ const txt = `${fname(f)}: ${names.join(' + ')} = ${fmt(s.p)} Einwohner, ${s.n} Gemeindeämter werden zu einem. Mein neues Vorarlberg im NEOS Gemeindefusionierer. #FusionStattIllusion`;
+    const done=()=>{toast.textContent='Kopiert';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
+    try { navigator.clipboard.writeText(txt).then(done, fail); } catch(e){ fail(); } };
+  row.append(b1,b3);
+  const sh = add('div','share');
+  const sl=document.createElement('p'); sl.className='sharelabel'; sl.textContent='Mit Freund*innen teilen'; sh.appendChild(sl);
+  const sr=document.createElement('div'); sr.className='row tight'; sh.appendChild(sr);
+  const url=shareLink(fusions), text=shareText(f), enc=encodeURIComponent;
+  const mk=(label,href)=>{ const a=document.createElement('a'); a.className='btn'; a.textContent=label; a.href=href; a.target='_blank'; a.rel='noopener'; return a; };
+  if (navigator.share){ const bn=document.createElement('button'); bn.className='btn big small'; bn.textContent='Teilen'; bn.onclick=async()=>{ if(!(await shareNative(f))) toast.textContent='Teilen ging nicht – nimm „Link kopieren“.'; }; sr.appendChild(bn); }
+  const bd=document.createElement('button'); bd.className='btn big small'; bd.textContent='Karte als Bild speichern'; bd.onclick=()=>{ toast.textContent = downloadMap() ? 'Bild gespeichert – schau in deinen Downloads.' : 'Speichern ging nicht – mach einfach einen Screenshot.'; }; sr.appendChild(bd);
+  b2.textContent='Link kopieren';
+  b2.onclick=()=>{ const txt = url;
+    const done=()=>{toast.textContent='Link kopiert – jetzt einfügen und verschicken.';}; const fail=()=>{ toast.textContent='Kopieren ging nicht, Text unten markieren'; let ta=box.querySelector('textarea'); if(!ta){ta=document.createElement('textarea'); ta.id='copytext'; ta.rows=3; ta.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)'; box.appendChild(ta);} ta.value=txt; ta.select(); };
+    try { navigator.clipboard.writeText(txt).then(done, fail); } catch(e){ fail(); } };
+  sr.appendChild(b2); sh.appendChild(toast);
+}
+function renderList(){
+  const l=$('flist'); l.textContent='';
+  $('listcard').hidden = fusions.length===0;
+  fusions.slice().reverse().forEach(f=>{
+    const b=document.createElement('button'); b.className='fitem'+(f.id===active?' act':'');
+    const i=document.createElement('i'); i.style.background=`var(${f.c})`;
+    const n=document.createElement('b'); n.textContent=fname(f);
+    const s=document.createElement('span'); s.textContent=`${f.m.length} Gemeinden · ${fmt(f.m.reduce((a,k)=>a+G[k].p,0))} Einw.`;
+    b.append(i,n,s); b.onclick=()=>{active=f.id;render();}; l.appendChild(b);
+  });
+}
+function fuse(members, example){
+  const m = [...new Set(members)];
+  if (!connected(m)) { hintMsg='Diese Gemeinden grenzen nicht aneinander.'; render(); return; }
+  const absorbed = fusions.filter(f=>f.m.some(i=>m.includes(i)));
+  const oldNames = new Set(); absorbed.forEach(f=>{ oldNames.add(fname(f)); f.names.forEach((n,k)=>{ if (k<=f.ni) oldNames.add(n); }); });
+  const added = m.filter(i=>!absorbed.some(f=>f.m.includes(i)));
+  fusions = fusions.filter(f=>!absorbed.includes(f));
+  let names = namePool(m);
+  const mpop = m.reduce((s,i)=>s+G[i].p,0);
+  if (absorbed.length && added.length && mpop < TOTAL*0.10){
+    const big = [...m].sort((x,y)=>G[y].p-G[x].p)[0], nw = [...added].sort((x,y)=>G[y].p-G[x].p)[0];
+    const fresh = [pm(G[big].n, G[nw].n), pm(G[nw].n, G[big].n)].filter(n=>!oldNames.has(n) && !G.some(g=>g.n===n));
+    names = [...new Set([...fresh, ...names])];
+  }
+  if (m.length === N) names = ['Super-Vorarlberg'];
+  let ni = names.findIndex(n=>!oldNames.has(n)); if (ni < 0) ni = 0;
+  const f = {id:nextId++, m, names, ni, custom:null, c:absorbed.length ? absorbed[0].c : COLORS[colorIx++ % COLORS.length], example:!!example};
+  fusions.push(f); active=f.id; sel.clear(); hintMsg=''; render(); renderResult(true); if (!example) boom(m);
+}
+
+/* ---------- Fusions-Effekt ---------- */
+function boom(members){
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const svg = $('map'), NS = 'http://www.w3.org/2000/svg';
+  const cx = members.reduce((s,i)=>s+G[i].x,0)/members.length, cy = members.reduce((s,i)=>s+G[i].y,0)/members.length;
+  const span = Math.max(40, Math.min(220, spanKm(members)/KMU*0.6));
+  const g = document.createElementNS(NS,'g'); g.setAttribute('pointer-events','none'); svg.appendChild(g);
+  members.forEach(i=>paths[i] && paths[i].animate([{filter:'brightness(1.8)'},{filter:'brightness(1)'}],{duration:520,easing:'ease-out'}));
+  [0,140].forEach(delay=>{
+    const c = document.createElementNS(NS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',span);
+    c.setAttribute('fill','none'); c.setAttribute('stroke','#E6007E'); c.setAttribute('stroke-width','6'); c.style.transformOrigin=`${cx}px ${cy}px`; g.appendChild(c);
+    c.animate([{transform:'scale(.15)',opacity:1},{transform:'scale(1)',opacity:0}],{duration:650,delay,easing:'cubic-bezier(.2,.7,.3,1)',fill:'both'});
+  });
+  for (let k=0;k<16;k++){
+    const a = k/16*Math.PI*2 + Math.random()*0.3, d = span*(0.7+Math.random()*0.6);
+    const p = document.createElementNS(NS,'circle'); p.setAttribute('cx',cx); p.setAttribute('cy',cy); p.setAttribute('r', 3+Math.random()*4);
+    p.setAttribute('fill', k%3 ? '#E6007E' : '#1D1722'); g.appendChild(p);
+    p.animate([{transform:'translate(0,0)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px)`,opacity:0}],{duration:700+Math.random()*250,easing:'cubic-bezier(.15,.7,.3,1)',fill:'both'});
+  }
+  const t = document.createElementNS(NS,'text'); t.setAttribute('x',cx); t.setAttribute('y',cy); t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+  t.setAttribute('font-size','34'); t.setAttribute('font-weight','800'); t.setAttribute('fill','#1D1722'); t.setAttribute('stroke','#fff'); t.setAttribute('stroke-width','6'); t.setAttribute('paint-order','stroke');
+  t.style.fontFamily="var(--display)"; t.style.transformOrigin=`${cx}px ${cy}px`; t.textContent='Fusion!'; g.appendChild(t);
+  t.animate([{transform:'scale(.4)',opacity:0},{transform:'scale(1.1)',opacity:1,offset:.35},{transform:'scale(1)',opacity:1,offset:.7},{transform:'scale(1)',opacity:0}],{duration:1100,easing:'ease-out',fill:'both'});
+  setTimeout(()=>g.remove(), 1300);
+  if (navigator.vibrate) try{ navigator.vibrate(30); }catch(e){}
+}
+
+/* ---------- An NEOS schicken ---------- */
+const EXTERN = /[?&]formular=extern\b/.test(location.search) && window.parent !== window;
+let externTimer = null;
+function meldeKarte(){
+  if (!EXTERN) return;
+  clearTimeout(externTimer);
+  externTimer = setTimeout(()=>{
+    const cnt = N - fusions.reduce((t,x)=>t+x.m.length-1,0);
+    const gem = `${cnt} statt 96 · ` + fusions.map(f=>`${fname(f)} (${f.m.map(i=>G[i].n).join(' + ')})`).join(' | ');
+    let png = null; try { png = fusions.length ? makeImage(fusions, 'Mein neues Vorarlberg') : null; } catch(e){}
+    parent.postMessage({fusionierer:'karte', link: fusions.length ? shareLink(fusions) : '', gemeinden: fusions.length ? gem : '', png}, '*');
+  }, 700);
+}
+function renderSend(){
+  $('sendcard').hidden = true;
+  meldeKarte();
+}
+function fusionData(f){ const s=stats(f.m); return { name: fname(f), namensvorschlag_eigen: !!f.custom, gemeinden: f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de')), einwohner: s.p, flaeche_km2: Math.round(s.a*10)/10, mandate_vorher: s.m, mandate_nachher: s.newM }; }
+const IMGCOL = {map:'#E6DFEA', edge:'#FFFFFF', ink:'#1D1722', muted:'#6B6274', pink:'#E6007E', bg:'#F6F3F7', g:{'--g1':'#E6007E','--g2':'#0E9F8E','--g3':'#E08A00','--g4':'#6C4BD8','--g5':'#1F7AE0','--g6':'#C2410C'}};
+function makeImage(list, title){
+  const S=1.2, top=142, W=620, H=965;
+  const cv=document.createElement('canvas'); cv.width=W*S; cv.height=(H+top+70)*S;
+  const c=cv.getContext('2d'); c.scale(S,S);
+  c.fillStyle=IMGCOL.bg; c.fillRect(0,0,W,H+top+70);
+  c.fillStyle=IMGCOL.pink; c.fillRect(0,0,W,52);
+  c.fillStyle='#FFFFFF'; c.font='800 24px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText('NEOS Vorarlberg', 22, 35);
+  c.textAlign='right'; c.font='600 15px Söhne, Figtree, sans-serif'; c.fillText('Der Gemeindefusionierer', W-22, 33); c.textAlign='left';
+  c.fillStyle=IMGCOL.ink; c.font='800 30px Söhne, "Bricolage Grotesque", sans-serif'; c.fillText(title, 22, 100);
+  const cnt = N - list.reduce((s,f)=>s+f.m.length-1,0);
+  c.fillStyle=IMGCOL.muted; c.font='500 15px Söhne, Figtree, sans-serif'; c.fillText(`${cnt} statt 96 Gemeinden · Fusion statt Illusion`, 22, 124);
+  c.save(); c.translate(0, top);
+  G.forEach(g=>{ const p=new Path2D(g.d); c.fillStyle=IMGCOL.map; c.fill(p); c.strokeStyle=IMGCOL.edge; c.lineWidth=.8; c.stroke(p); });
+  list.forEach(f=>{ const col=IMGCOL.g[f.c]; c.lineJoin='round';
+    f.m.forEach(i=>{ const p=new Path2D(G[i].d); c.fillStyle=col; c.fill(p); c.strokeStyle=IMGCOL.ink; c.lineWidth=2.4; c.stroke(p); });
+    f.m.forEach(i=>{ const p=new Path2D(G[i].d); c.fillStyle=col; c.fill(p); c.strokeStyle=col; c.lineWidth=1.6; c.stroke(p); }); });
+  list.forEach(f=>{ const L=labelPos(f); c.font=`800 ${L.size.toFixed(1)}px Söhne, "Bricolage Grotesque", sans-serif`; c.textAlign='center';
+    const tw=c.measureText(fname(f)).width, lx=Math.min(W-8-tw/2, Math.max(8+tw/2, L.x));
+    c.lineWidth=4; c.strokeStyle='#FFFFFF'; c.lineJoin='round'; c.strokeText(fname(f), lx, L.y+L.size/3); c.fillStyle=IMGCOL.ink; c.fillText(fname(f), lx, L.y+L.size/3); });
+  c.restore();
+  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Datenstand: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+16); c.font='500 10px Söhne, Figtree, sans-serif'; c.fillText('Selbst vergebene Namen stammen von Nutzer*innen. NEOS ist für diese Namen nicht verantwortlich.', 22, H+top+32); if (CONFIG.shareUrl){ c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('Mach mit: ' + CONFIG.shareUrl.replace(/^https?:\/\//,'').replace(/\/$/,''), 22, H+top+54); }
+  try { return cv.toDataURL('image/png'); } catch(e){ return null; }
+}
+$('sendform').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const out=$('sendmsg'); out.className='sendmsg'; out.textContent='';
+  const which = 'karte';
+  const list = fusions;
+  const msg=$('f-msg').value.trim(), mail=$('f-mail').value.trim(), news=$('f-news').checked;
+  if (!list.length){ out.textContent='Bitte zuerst eine Fusion bauen.'; out.classList.add('err'); return; }
+  if (msg.length<3){ out.textContent='Schreib uns bitte kurz, warum du das so machen würdest.'; out.classList.add('err'); $('f-msg').focus(); return; }
+  if ($('f-name').value.trim().length<2){ out.textContent='Bitte gib deinen Namen an.'; out.classList.add('err'); $('f-name').focus(); return; }
+  if (!$('f-win').checked && !$('f-pub').checked && !news){ out.textContent='Bitte wähl mindestens eine der drei Optionen aus.'; out.classList.add('err'); return; }
+  if (($('f-win').checked || news) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Für Gewinnspiel und Newsletter brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
+  if (news && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Für Infos von NEOS brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
+  if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Die E-Mail-Adresse sieht nicht richtig aus.'; out.classList.add('err'); $('f-mail').focus(); return; }
+  const title = 'Mein neues Vorarlberg';
+  const payload = {
+    art: which, gesendet_am: new Date().toISOString(),
+    gemeinden_gesamt: N - list.reduce((s,x)=>s+x.m.length-1,0),
+    fusionen: list.map(fusionData),
+    nachricht: msg, vorname: $('f-name').value.trim(), wohnort: $('f-ort').value.trim(),
+    email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-pub').checked,
+    gewinnspiel: $('f-win').checked, link: shareLink(list), einwilligung_text: $('t-win').textContent,
+    newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-pub').textContent,
+    quelle: location.href.split('#')[0], website: $('f-web').value,
+    bild_png: CONFIG.includeImage ? makeImage(list, title) : null
+  };
+  if (CONFIG.mailto){
+    const lines = [
+      'Hallo NEOS Vorarlberg,', '',
+      'hier ist meine Fusion: ' + title, 'Mein Vorarlberg hätte ' + payload.gemeinden_gesamt + ' statt 96 Gemeinden.', '',
+      ...list.map(x=>'- ' + fname(x) + ': ' + x.m.map(i=>G[i].n).join(' + ')), '',
+      'Zum Ansehen: ' + shareLink(list), '',
+      'Warum ich das so machen würde:', msg, '',
+      'Vorname: ' + (payload.vorname || '-'), 'Wohnort: ' + (payload.wohnort || '-'), 'E-Mail: ' + (mail || '-'),
+      'Newsletter: ' + (news ? 'JA – ich möchte in Zukunft von NEOS informiert werden.' : 'nein'),
+      'Veröffentlichung: ' + (payload.veroeffentlichung_einwilligung ? 'JA – NEOS darf meine Fusion mit Vornamen und Wohnort zeigen.' : 'nein')
+    ];
+    let body = lines.join('\n'); if (body.length > 1800) body = body.slice(0,1800) + ' …';
+    const href = 'mailto:' + CONFIG.mailto + '?subject=' + encodeURIComponent('Meine Fusion: ' + title) + '&body=' + encodeURIComponent(body);
+    const a = document.createElement('a'); a.href = href; a.target = '_top'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+    $('sendform').hidden=true; $('sendok').hidden=false;
+    const okp=$('sendok').querySelectorAll('p')[1]; if (okp) okp.textContent='Dein Mail-Programm hat sich mit der fertigen Nachricht geöffnet. Bitte dort noch auf Senden drücken – dann ist sie bei uns. Falls sich nichts geöffnet hat, schick uns deine Fusion einfach an ' + CONFIG.mailto + '.';
+    return;
+  }
+  const btn=$('sendbtn'); btn.disabled=true;
+  if (CONFIG.submitUrl){
+    try {
+      const r = await fetch(CONFIG.submitUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if (!r.ok) throw new Error(r.status);
+      $('sendform').hidden=true; $('sendok').hidden=false;
+      $('sendok').querySelectorAll('p')[1].textContent = 'Dein neues Vorarlberg ist bei uns angekommen' + (payload.gewinnspiel ? ' und nimmt am Gewinnspiel teil' : '') + '. Vielleicht ist es bald die „Fusion der Woche“.';
+    } catch(err){ out.textContent='Das Senden hat nicht geklappt. Bitte versuch es in ein paar Minuten noch einmal.'; out.classList.add('err'); }
+    btn.disabled=false; return;
+  }
+  btn.disabled=false;
+  const pv=$('preview'); pv.hidden=false; pv.textContent='';
+  const h=document.createElement('p'); h.className='label'; h.textContent='Testmodus – so käme die Einsendung bei NEOS an'; pv.appendChild(h);
+  if (payload.bild_png){ const im=document.createElement('img'); im.src=payload.bild_png; im.alt='Kartenbild der Einsendung'; pv.appendChild(im); }
+  const pre=document.createElement('pre'); const shown={...payload, bild_png: payload.bild_png ? `[PNG, ${Math.round(payload.bild_png.length/1024)} KB]` : null}; pre.textContent=JSON.stringify(shown,null,2); pv.appendChild(pre);
+});
+function updSendBtn(){ $('sendbtn').disabled = !($('f-win').checked || $('f-pub').checked || $('f-news').checked); }
+['f-win','f-pub','f-news'].forEach(id=>$(id).addEventListener('change', updSendBtn));
+if (CONFIG.raffleUrl){ const a=$('raffle'); a.href=CONFIG.raffleUrl; a.hidden=false; }
+if (CONFIG.privacyUrl){ const a=$('privacy'); a.href=CONFIG.privacyUrl; a.hidden=false; }
+
+
+/* ---------- Teilen ---------- */
+function encodeMap(list){ return list.map(f=>f.m.slice().sort((a,b)=>a-b).join('.') + (f.custom ? '~'+encodeURIComponent(f.custom) : (f.ni ? '-'+f.ni : ''))).join('_'); }
+function shareLink(list){
+  const baseUrl = CONFIG.shareUrl || (location.href.split('#')[0]);
+  return `${baseUrl}#karte=${encodeMap(list)}`;
+}
+function shareText(f){
+  const s=stats(f.m);
+  return `Ich hab Vorarlberg neu sortiert: ${fname(f)} = ${f.m.map(i=>G[i].n).sort((a,b)=>a.localeCompare(b,'de')).join(' + ')}, ${fmt(s.p)} Einwohner, ${s.n} Gemeindeämter werden zu einem. Wie würdest du fusionieren? Probier den NEOS Gemeindefusionierer:`;
+}
+function restoreFromHash(){
+  const m = location.hash.match(/karte=([^&]+)/); if (!m) return false;
+  let ok=false;
+  m[1].split('_').forEach(part=>{
+    let [ids, nm] = part.split('~'); let ni=0; const mm=(ids||'').match(/^(.*)-(\d+)$/); if (mm){ ids=mm[1]; ni=+mm[2]; }
+    const arr = (ids||'').split('.').map(Number).filter(n=>Number.isInteger(n) && n>=0 && n<N);
+    if (arr.length<2 || !connected(arr) || arr.some(i=>fusionOf(i))) return;
+    fuse(arr); const f=fusions[fusions.length-1]; if (ni < f.names.length) f.ni=ni; if (nm) { try { f.custom = decodeURIComponent(nm).slice(0,40); } catch(e){} }
+    ok=true;
+  });
+  if (ok){ $('sharedbanner').hidden=false; render(); }
+  return ok;
+}
+function downloadMap(){
+  try {
+    const png = makeImage(fusions, 'Mein neues Vorarlberg'); if (!png) return false;
+    const bin = atob(png.split(',')[1]); const arr = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([arr], {type:'image/png'}));
+    const a = document.createElement('a'); a.href=url; a.download='mein-neues-vorarlberg.png'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000); return true;
+  } catch(e){ return false; }
+}
+async function shareNative(f){
+  const url=shareLink(fusions);
+  try { await navigator.share({title:'Mein neues Vorarlberg – Der NEOS Gemeindefusionierer', url}); return true; }
+  catch(e){ if (e && e.name==='AbortError') return true; }
+  return false;
+}
+
+/* ---------- Controls ---------- */
+$('fuse').onclick = ()=> fuse([...sel]);
+$('clear').onclick = ()=>{ sel.clear(); hintMsg=''; render(); };
+$('reset').onclick = ()=>{ fusions=[]; sel.clear(); active=null; hintMsg=''; render(); };
+$('random').onclick = ()=>{
+  const free = G.map((g,i)=>i).filter(i=>!fusionOf(i));
+  if (!free.length) return;
+  const start = free[Math.floor(Math.random()*free.length)], want = 2+Math.floor(Math.random()*3), m=[start];
+  while (m.length<want){ const cand=[...new Set(m.flatMap(i=>G[i].nb))].filter(j=>!m.includes(j)&&!fusionOf(j)); if(!cand.length) break; m.push(cand[Math.floor(Math.random()*cand.length)]); }
+  if (m.length<2) return; fuse(m);
+};
+document.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{
+  const k=b.dataset.preset;
+  const m = k==='all' ? G.map((g,i)=>i) : REGIONS.find(r=>r.key===k).m.map(n=>idx[n]);
+  fuse(m);
+});
+const dl=$('gemlist'); G.slice().sort((a,b)=>a.n.localeCompare(b.n,'de')).forEach(g=>{ const o=document.createElement('option'); o.value=g.n; dl.appendChild(o); });
+$('search').addEventListener('input', e=>{ const v=e.target.value.trim(); const i=idx[v] ?? idx[G.find(g=>g.n.toLowerCase()===v.toLowerCase())?.n];
+  if (i!==undefined){ addToSel(i); e.target.value=''; render(); } });
+$('search').addEventListener('keydown', e=>{ if (e.key==='Enter'){ const v=e.target.value.trim().toLowerCase(); const g=G.find(x=>x.n.toLowerCase().startsWith(v)); if (g){ addToSel(idx[g.n]); e.target.value=''; render(); } } });
+
+window.addEventListener('hashchange', ()=>{ if (/karte=/.test(location.hash)){ fusions=[]; active=null; sel.clear(); restoreFromHash(); render(); window.scrollTo(0,0); } });
+/* Start: Beispiel Dünserberg + Düns */
+if (!restoreFromHash()){
+  fuse([idx['Dünserberg'], idx['Düns']], true);
+  { const f=fusions[0]; const k=f.names.indexOf('Dünsdüns'); if(k>=0){f.ni=k; render();} }
+}
+</script>
+
+
+<script>
+(function(){ if (window.parent===window) return;
+  var last=0; function send(){ var h=document.documentElement.scrollHeight; if (Math.abs(h-last)>4){ last=h; parent.postMessage({fusionierer:'hoehe', h:h}, '*'); } }
+  new ResizeObserver(send).observe(document.documentElement); window.addEventListener('load', send); setInterval(send, 1500);
+})();
+</script>
+</body>
+</html>
