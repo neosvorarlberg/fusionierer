@@ -218,9 +218,10 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
           <label for="f-mail">E-Mail *</label>
           <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="Damit wir dich verständigen können, wenn du gewinnst">
           <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input type="text" id="f-web" tabindex="-1" autocomplete="off"></div>
-          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich will beim Gewinnspiel teilnehmen. *</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
-          <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich will den NEOS-Newsletter abonnieren, um weitere Infos zu erhalten. Abmelden geht jederzeit.</span></label>
-          <p class="note" id="t-ok">Mit deiner Teilnahme willigst du ein, dass NEOS Vorarlberg deine Angaben, deine Karte und deine Nachricht im Rahmen des Gewinnspiels verarbeitet. Deine eingesendete Karte darf NEOS mit deinem Vornamen und – falls angegeben – deinem Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“. Bis auf die Newsletter-Anmeldung werden alle Daten nach Ende des Gewinnspiels gelöscht. Für deine Nachricht und selbst vergebene Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. * Pflichtfeld. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
+          <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich nehme am Gewinnspiel teil und bin einverstanden, dass NEOS Vorarlberg dafür meine Angaben, meine Karte und meine Nachricht verarbeitet. *</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
+          <label class="check" for="f-pub"><input type="checkbox" id="f-pub"> <span id="t-pub">NEOS darf meine Karte und meine Nachricht mit meinem Vornamen und – falls angegeben – meinem Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“. (freiwillig)</span></label>
+          <label class="check" for="f-news"><input type="checkbox" id="f-news"> <span id="t-news">Ich will den NEOS-Newsletter abonnieren, um weitere Infos zu erhalten. (freiwillig)</span></label>
+          <p class="note" id="t-ok">Die Teilnahme am Gewinnspiel hängt nicht davon ab, ob du der Veröffentlichung zustimmst oder den Newsletter abonnierst. Vor der Eintragung in den Newsletter bekommst du von uns eine E-Mail, in der du deine Anmeldung bestätigst (Double-Opt-in) – erst dann wirst du eingetragen. Abmelden geht jederzeit. Deine Einwilligungen kannst du jederzeit per E-Mail an vorarlberg@neos.eu widerrufen. Bis auf eine bestätigte Newsletter-Anmeldung löschen wir alle Daten nach Ende des Gewinnspiels. Für deine Nachricht und selbst vergebene Namen bist du verantwortlich; beleidigende Einsendungen veröffentlichen wir nicht. * Pflichtfeld. <a id="privacy" href="#" target="_blank" rel="noopener" hidden>Datenschutzerklärung</a></p>
           <div class="row"><button class="btn big" id="sendbtn" type="submit">Mein neues Vorarlberg an NEOS senden</button><span id="sendmsg" class="sendmsg" role="status"></span></div>
         </form>
         <div id="sendok" class="ok" hidden><p class="name">Danke!</p><p>Dein neues Vorarlberg ist bei uns angekommen und nimmt am Gewinnspiel teil. Vielleicht ist es bald die „Fusion der Woche“.</p></div>
@@ -623,7 +624,7 @@ $('sendform').addEventListener('submit', async e=>{
   if (msg.length<3){ out.textContent='Schreib uns bitte kurz, warum du das so machen würdest.'; out.classList.add('err'); $('f-msg').focus(); return; }
   if ($('f-name').value.trim().length<2){ out.textContent='Bitte gib deinen Namen an.'; out.classList.add('err'); $('f-name').focus(); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Bitte gib eine gültige E-Mail-Adresse an, damit wir dich verständigen können.'; out.classList.add('err'); $('f-mail').focus(); return; }
-  if (!$('f-win').checked){ out.textContent='Bitte bestätige, dass du beim Gewinnspiel teilnehmen willst.'; out.classList.add('err'); $('f-win').focus(); return; }
+  if (!$('f-win').checked){ out.textContent='Bitte bestätige die Teilnahme am Gewinnspiel.'; out.classList.add('err'); $('f-win').focus(); return; }
   if (news && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Für Infos von NEOS brauchen wir eine gültige E-Mail-Adresse.'; out.classList.add('err'); $('f-mail').focus(); return; }
   if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ out.textContent='Die E-Mail-Adresse sieht nicht richtig aus.'; out.classList.add('err'); $('f-mail').focus(); return; }
   const title = 'Mein neues Vorarlberg';
@@ -632,9 +633,9 @@ $('sendform').addEventListener('submit', async e=>{
     gemeinden_gesamt: N - list.reduce((s,x)=>s+x.m.length-1,0),
     fusionen: list.map(fusionData),
     nachricht: msg, vorname: $('f-name').value.trim(), wohnort: $('f-ort').value.trim(),
-    email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-win').checked,
-    gewinnspiel: $('f-win').checked, link: shareLink(list), einwilligung_text: $('t-ok').textContent,
-    newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-ok').textContent,
+    email: mail, newsletter_einwilligung: news, veroeffentlichung_einwilligung: $('f-pub').checked,
+    gewinnspiel: $('f-win').checked, link: shareLink(list), einwilligung_text: $('t-win').textContent,
+    newsletter_text: $('t-news').textContent, veroeffentlichung_text: $('t-pub').textContent,
     quelle: location.href.split('#')[0], website: $('f-web').value,
     bild_png: CONFIG.includeImage ? makeImage(list, title) : null
   };
