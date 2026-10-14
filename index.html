@@ -163,7 +163,14 @@ footer .fun{font-family:var(--display);font-weight:800;font-size:20px;color:var(
 }
 @media (pointer:coarse){ .btn{min-height:44px} .presets .btn{min-height:40px} }
 html.web .mbar .btn.big{border-radius:999px}
-@media (max-width:600px){ html.web .wrap{padding-inline:14px} }
+
+
+
+/* ---------- Kleingedrucktes / Handy-Abspeckung ---------- */
+details.legal summary{cursor:pointer;font-weight:600;color:var(--ink);list-style:revert}
+details.legal .legalin{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+@media (min-width:861px){ details.legal summary{display:none} }
+@media (max-width:600px){ .presets{display:none} .wrap{padding-inline:20px!important} .card{padding:16px} }
 
 /* ---------- Website-Modus (eingebettet auf vorarlberg.neos.eu) ---------- */
 html.web{
@@ -276,10 +283,12 @@ html.web footer .fun{font-size:22px;color:var(--pink)}
 
   <footer>
     <span>Ein Spiel von <a href="https://vorarlberg.neos.eu/" target="_blank" rel="noopener">NEOS Vorarlberg</a>. Die Namen sind Spaß, die Zahlen nicht.</span>
+    <details class="legal" id="legal"><summary>Kleingedrucktes, Quellen &amp; Hinweise</summary><div class="legalin">
     <span><b>Alle Angaben ohne Gewähr.</b> Die Zahlen beruhen auf der Landesstatistik Vorarlberg (Stichtag 30.06.2026) und eigenen Berechnungen. Abweichungen zu aktuellen oder amtlichen Zahlen sind möglich, Grenzen und Flächen sind vereinfacht dargestellt. Namen, Fun Facts und Vergleiche dienen der Unterhaltung und sind keine Planung oder Empfehlung für konkrete Gemeinden. Für konkrete Vorhaben können sich Gemeinden in Vorarlberg bis zu 100.000 € für die Prozessbegleitung abholen (<a href="https://vorarlberg.at/-/gemeindekooperationen-foerderung" target="_blank" rel="noopener">Förderung des Landes</a>).</span>
     <span><b>Eigene Inhalte:</b> Selbst eingegebene Gemeindenamen, Nachrichten und andere Texte stammen von den Nutzer*innen. Für abwertende, beleidigende oder sonst unangemessene Inhalte ist allein die Person verantwortlich, die sie erstellt hat; NEOS macht sich solche Inhalte nicht zu eigen und veröffentlicht sie nicht.</span>
     <span><b>Mit KI erstellt.</b> Der Fusionierer wurde mit Unterstützung von KI gebaut. Die Daten stammen aus dem Web und aus aktuellen Studien und Berichten, unter anderem: <a href="https://vorarlberg.at/-/22_verwaltungszaehlung" target="_blank" rel="noopener">Landesstatistik Vorarlberg, Bevölkerungsstand 30.06.2026</a> · <a href="https://ssas-yearbook.com/articles/10.5334/ssas.131" target="_blank" rel="noopener">Fetz &amp; Derungs (2020): Gemeindefusionen in der Schweiz</a> · <a href="https://www.news.steiermark.at/cms/beitrag/12767550/154271055/" target="_blank" rel="noopener">Land Steiermark: Bilanz der Gemeindestrukturreform</a> · <a href="https://www.gl.ch/public/upload/assets/33745/180708%20fusion%20schw.gemeinden.pdf?fp=2" target="_blank" rel="noopener">Kanton Glarus: Fusionen – Bilanz in Glarus (2018)</a> · <a href="https://vorarlberg.orf.at/stories/3343149" target="_blank" rel="noopener">Landes-Rechnungshof Vorarlberg zu Gemeindefusionen (ORF, 2026)</a> · <a href="https://ris.bka.gv.at/NormDokument.wxe?Abfrage=LrVbg&amp;Gesetzesnummer=20000047&amp;Paragraf=34" target="_blank" rel="noopener">§ 34 Gemeindegesetz Vorarlberg</a>.</span>
     <span>Einwohner (Hauptwohnsitz), Zweitwohnsitze und Altersgruppen: Landesstatistik Vorarlberg, Stichtag 30.06.2026. Gemeindevertretung nach § 34 Gemeindegesetz, gerechnet mit aktuellen Einwohnerzahlen. Grenzen: Statistik Austria (vereinfacht), Flächen daraus berechnet.</span>
+    </div></details>
     <span class="fun">Viel Spaß beim Fusionieren!</span>
   </footer>
 </div>
@@ -779,6 +788,7 @@ async function shareNative(f){
 /* ---------- Controls ---------- */
 $('fuse').onclick = ()=>{ fuse([...sel]); if (matchMedia('(max-width:860px)').matches) setTimeout(()=>{ try{ $('result').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} },60); };
 $('mfuse').onclick = ()=> $('fuse').click();
+if (matchMedia('(min-width:861px)').matches && $('legal')) $('legal').open = true;
 $('clear').onclick = ()=>{ sel.clear(); hintMsg=''; render(); };
 $('reset').onclick = ()=>{ fusions=[]; sel.clear(); active=null; hintMsg=''; render(); };
 $('random').onclick = ()=>{
