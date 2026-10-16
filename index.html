@@ -210,6 +210,13 @@ html.web:not(.framed) .counter b{color:var(--pink)}
 html.web:not(.framed) .counter span,html.web:not(.framed) .counter s{color:var(--ink)}
 @media (max-width:600px){ html.web:not(.framed) header{padding:22px 18px 20px} }
 
+
+.topnav{display:none}
+html.web:not(.framed) .topnav{display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:14px;font-weight:600}
+html.web:not(.framed) .topnav a{color:var(--pink);text-decoration:none}
+html.web:not(.framed) .topnav a:hover{text-decoration:underline}
+.legallinks a{color:var(--ink)}
+
 /* ---------- Formular als NEOS-Kontaktblock ---------- */
 html.web #sendcard{background:var(--pink);border-color:var(--pink);color:#fff;padding:24px}
 html.web #sendcard h2{color:var(--yellow);font-size:clamp(22px,2.6vw,28px);line-height:1.15;letter-spacing:0;text-transform:none;margin-bottom:10px}
@@ -235,6 +242,7 @@ html.web #sendcard .preview .label{color:#fff}
 </head>
 <body>
 <div class="wrap">
+  <nav class="topnav"><a href="https://vorarlberg.neos.eu/">&larr; NEOS Vorarlberg</a><a href="https://www.instagram.com/neos.vlbg/" target="_blank" rel="noopener">@neos.vlbg</a></nav>
   <header>
     <div>
       <p class="kicker">NEOS Vorarlberg · Fusion statt Illusion</p>
@@ -315,6 +323,7 @@ html.web #sendcard .preview .label{color:#fff}
 
   <footer>
     <span>Ein Spiel von <a href="https://vorarlberg.neos.eu/" target="_blank" rel="noopener">NEOS Vorarlberg</a>. Die Namen sind Spaß, die Zahlen nicht.</span>
+    <span class="legallinks"><a href="https://www.neos.eu/impressum" target="_blank" rel="noopener">Impressum</a> · <a href="https://www.neos.eu/datenschutz" target="_blank" rel="noopener">Datenschutz</a> · <a href="https://vorarlberg.neos.eu/" target="_blank" rel="noopener">vorarlberg.neos.eu</a></span>
     <details class="legal" id="legal"><summary>Kleingedrucktes, Quellen &amp; Hinweise</summary><div class="legalin">
     <span><b>Alle Angaben ohne Gewähr.</b> Die Zahlen beruhen auf der Landesstatistik Vorarlberg (Stichtag 30.06.2026) und eigenen Berechnungen. Abweichungen zu aktuellen oder amtlichen Zahlen sind möglich, Grenzen und Flächen sind vereinfacht dargestellt. Namen, Fun Facts und Vergleiche dienen der Unterhaltung und sind keine Planung oder Empfehlung für konkrete Gemeinden. Für konkrete Vorhaben können sich Gemeinden in Vorarlberg bis zu 100.000 € für die Prozessbegleitung abholen (<a href="https://vorarlberg.at/-/gemeindekooperationen-foerderung" target="_blank" rel="noopener">Förderung des Landes</a>).</span>
     <span><b>Eigene Inhalte:</b> Selbst eingegebene Gemeindenamen, Nachrichten und andere Texte stammen von den Nutzer*innen. Für abwertende, beleidigende oder sonst unangemessene Inhalte ist allein die Person verantwortlich, die sie erstellt hat; NEOS macht sich solche Inhalte nicht zu eigen und veröffentlicht sie nicht.</span>
@@ -480,7 +489,7 @@ const CONFIG = {
   mailto: '',   // leer = Einsendungen gehen direkt an submitUrl
   raffleUrl: '', // Link zu den Teilnahmebedingungen des Gewinnspiels
   submitUrl: 'https://fusionierer.vorarlberg.workers.dev/',   // Adresse des Cloudflare Workers, z. B. https://fusionierer.neosvorarlberg.workers.dev   // Endpunkt, der die Einsendung als JSON per POST annimmt. Leer = Testmodus (zeigt nur an, was gesendet würde).
-  privacyUrl: '',  // Link zur Datenschutzerklärung von NEOS Vorarlberg. Muss vor dem Livegang gesetzt werden.
+  privacyUrl: 'https://www.neos.eu/datenschutz',  // Link zur Datenschutzerklärung von NEOS Vorarlberg. Muss vor dem Livegang gesetzt werden.
   includeImage: true, // Kartenbild (PNG, Base64) mitschicken
   shareUrl: 'https://neosvorarlberg.github.io/fusionierer/'     // Öffentliche Adresse des Fusionierers auf der Homepage, z. B. https://vorarlberg.neos.eu/fusionierer. Leer = aktuelle Seitenadresse.
 };
