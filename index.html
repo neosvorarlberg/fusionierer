@@ -169,7 +169,6 @@ html.web .mbar .btn.big{border-radius:999px}
 /* ---------- Kleingedrucktes / Handy-Abspeckung ---------- */
 details.legal summary{cursor:pointer;font-weight:600;color:var(--ink);list-style:revert}
 details.legal .legalin{display:flex;flex-direction:column;gap:6px;margin-top:8px}
-@media (min-width:861px){ details.legal summary{display:none} }
 @media (max-width:600px){ .presets{display:none} .wrap{padding-inline:20px!important} .card{padding:16px} }
 
 /* ---------- Website-Modus (eingebettet auf vorarlberg.neos.eu) ---------- */
@@ -179,7 +178,7 @@ html.web{
   --halo:#FFFFFF; --cand:#F7D5E3; --g1:#CB1967; --yellow:#F6D000;
 }
 html.web body{background:transparent}
-html.web .wrap{max-width:1110px;padding-inline:0;padding-block:8px 24px}
+html.web.framed .wrap{max-width:1110px;padding-inline:0;padding-block:8px 24px}
 html.web .kicker{color:var(--pink)}
 html.web h1{font-weight:700;font-size:clamp(24px,3.4vw,38px);line-height:1.05;letter-spacing:0;text-transform:uppercase}
 html.web .sub{color:var(--ink)}
@@ -198,8 +197,41 @@ html.web .punch{background:var(--pink);color:var(--yellow);border-radius:4px}
 html.web .fitem{border-radius:4px}
 html.web .banner{border-radius:4px}
 html.web footer .fun{font-size:22px;color:var(--pink)}
+
+/* ---------- NEOS-Look auch eigenständig ---------- */
+html.web:not(.framed) .wrap{padding-inline:24px;padding-block:24px 40px}
+html.web:not(.framed) header{background:linear-gradient(180deg,#CB1967 0%,#8C1048 100%);color:#fff;border-radius:4px;padding:28px 28px 26px;align-items:center}
+html.web:not(.framed) header .kicker{color:rgba(255,255,255,.85)}
+html.web:not(.framed) header h1{color:#fff}
+html.web:not(.framed) header h1 em{color:var(--yellow)}
+html.web:not(.framed) header .sub{color:#fff}
+html.web:not(.framed) .counter{background:#fff;border-color:#fff}
+html.web:not(.framed) .counter b{color:var(--pink)}
+html.web:not(.framed) .counter span,html.web:not(.framed) .counter s{color:var(--ink)}
+@media (max-width:600px){ html.web:not(.framed) header{padding:22px 18px 20px} }
+
+/* ---------- Formular als NEOS-Kontaktblock ---------- */
+html.web #sendcard{background:var(--pink);border-color:var(--pink);color:#fff;padding:24px}
+html.web #sendcard h2{color:var(--yellow);font-size:clamp(22px,2.6vw,28px);line-height:1.15;letter-spacing:0;text-transform:none;margin-bottom:10px}
+html.web #sendcard .intro,html.web #sendform label,html.web #sendcard .optlabel,html.web #sendcard .note,html.web #sendcard .sendmsg{color:#fff}
+html.web #sendcard .check{color:#fff!important}
+html.web #sendcard .optlabel{opacity:.85}
+html.web #sendcard .note{opacity:.9}
+html.web #sendcard a{color:#fff;text-decoration:underline}
+html.web #sendcard input[type=text],html.web #sendcard input[type=email],html.web #sendcard textarea{background:#fff;border:0;color:#000}
+html.web #sendcard .check input{accent-color:var(--yellow)}
+html.web #sendbtn{background:#fff;border-color:#fff;color:var(--pink);border-radius:999px;font-size:17px}
+html.web #sendbtn::after{content:"\2192";margin-left:10px}
+html.web #sendbtn:hover{color:var(--pink);filter:none;opacity:.92}
+html.web #sendbtn:disabled{opacity:.55}
+html.web #sendcard .sendmsg.err{color:var(--yellow)}
+html.web #sendcard .ok{background:rgba(255,255,255,.14);color:#fff;border-radius:4px}
+html.web #sendcard .ok .name{color:var(--yellow)}
+html.web #sendcard .preview{border-top-color:rgba(255,255,255,.35)}
+html.web #sendcard .preview .label{color:#fff}
+@media (max-width:600px){ html.web #sendcard{padding:20px 16px} html.web #sendbtn{width:100%;justify-content:center} }
 </style>
-<script>if(window.parent!==window){document.documentElement.classList.add('web');document.documentElement.setAttribute('data-theme','light');}</script>
+<script>(function(d){d.classList.add('web');d.setAttribute('data-theme','light');if(window.parent!==window)d.classList.add('framed');})(document.documentElement);</script>
 </head>
 <body>
 <div class="wrap">
@@ -266,7 +298,7 @@ html.web footer .fun{font-size:22px;color:var(--pink)}
             <div><label for="f-ort">Wohnort (freiwillig)</label><input type="text" id="f-ort" maxlength="40" list="gemlist"></div>
           </div>
           <label for="f-mail">E-Mail <span class="optlabel">(für Gewinnspiel und Newsletter nötig)</span></label>
-          <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="Damit wir dich verständigen können, wenn du gewinnst">
+          <input type="email" id="f-mail" maxlength="120" autocomplete="email" placeholder="name@beispiel.at">
           <div class="hp" aria-hidden="true"><label for="f-web">Website</label><input type="text" id="f-web" tabindex="-1" autocomplete="off"></div>
           <label class="check" for="f-win"><input type="checkbox" id="f-win"> <span id="t-win">Ich nehme am Gewinnspiel teil und bin einverstanden, dass NEOS Vorarlberg dafür meine Angaben, meine Karte und meine Nachricht verarbeitet.</span> <a id="raffle" href="#" target="_blank" rel="noopener" hidden>Teilnahmebedingungen</a></label>
           <label class="check" for="f-pub"><input type="checkbox" id="f-pub"> <span id="t-pub">NEOS darf meine Karte und meine Nachricht mit meinem Vornamen und – falls angegeben – meinem Wohnort veröffentlichen, zum Beispiel als „Fusion der Woche“.</span></label>
@@ -788,7 +820,6 @@ async function shareNative(f){
 /* ---------- Controls ---------- */
 $('fuse').onclick = ()=>{ fuse([...sel]); if (matchMedia('(max-width:860px)').matches) setTimeout(()=>{ try{ $('result').scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){} },60); };
 $('mfuse').onclick = ()=> $('fuse').click();
-if (matchMedia('(min-width:861px)').matches && $('legal')) $('legal').open = true;
 $('clear').onclick = ()=>{ sel.clear(); hintMsg=''; render(); };
 $('reset').onclick = ()=>{ fusions=[]; sel.clear(); active=null; hintMsg=''; render(); };
 $('random').onclick = ()=>{
