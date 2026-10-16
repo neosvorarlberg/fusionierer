@@ -710,7 +710,7 @@ function makeImage(list, title){
     const tw=c.measureText(fname(f)).width, lx=Math.min(W-8-tw/2, Math.max(8+tw/2, L.x));
     c.lineWidth=4; c.strokeStyle='#FFFFFF'; c.lineJoin='round'; c.strokeText(fname(f), lx, L.y+L.size/3); c.fillStyle=IMGCOL.ink; c.fillText(fname(f), lx, L.y+L.size/3); });
   c.restore();
-  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Datenstand: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+16); c.font='500 10px Söhne, Figtree, sans-serif'; c.fillText('Selbst vergebene Namen stammen von Nutzer*innen. NEOS ist für diese Namen nicht verantwortlich.', 22, H+top+32); if (CONFIG.shareUrl){ c.fillStyle=IMGCOL.pink; c.font='700 13px Söhne, Figtree, sans-serif'; c.fillText('Mach mit: ' + CONFIG.shareUrl.replace(/^https?:\/\//,'').replace(/\/$/,''), 22, H+top+54); }
+  c.textAlign='left'; c.fillStyle=IMGCOL.muted; c.font='500 12px Söhne, Figtree, sans-serif'; c.fillText('Der NEOS Gemeindefusionierer · Datenstand: Landesstatistik Vorarlberg, 30.06.2026', 22, H+top+16); c.font='500 10px Söhne, Figtree, sans-serif'; c.fillText('Selbst vergebene Namen stammen von Nutzer*innen. NEOS ist für diese Namen nicht verantwortlich.', 22, H+top+32); c.fillStyle=IMGCOL.pink; c.font='700 15px Söhne, Figtree, sans-serif'; c.fillText('@neos.vlbg', 22, H+top+56);
   try { return cv.toDataURL('image/png'); } catch(e){ return null; }
 }
 $('sendform').addEventListener('submit', async e=>{
